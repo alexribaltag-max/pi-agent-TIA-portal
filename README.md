@@ -1,4 +1,4 @@
-# 🚀 Awesome Pi TIA Agent
+#  Pi TIA Agent a Pi Agent extension
 
 **The ultimate bridge between AI and Industrial Automation.**
 
@@ -33,7 +33,7 @@ check out : https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent
 ## 🧠 Agent Intelligence (.pi folder)
 
 This repository is "agent-ready" out of the box. The `.pi` folder contains the configurations that turn a standard Pi Coding Agent into a TIA Portal Expert.
-
+drop .pi folder on your working folder and run pi command 
 - **Extensions (`.pi/extensions`)**: Includes `tiabridge.ts`, which registers the `tiabridge` tool. This allows the agent to send pipe-separated commands directly to the `TiaLocalBridge.exe`.
 - **Skills (`.pi/skills`)**: The `tia-portal-agent` skill provides the agent with structured workflows for discovery, export, import, and testing. It ensures the agent follows best practices when interacting with your PLC project.
 - **Prompts (`.pi/prompts`)**: Specialized system prompts (e.g., `tia-plc-blocks.md`) that teach the agent how to interpret TIA Openness XML and document formats, as well as how to handle device references.
@@ -54,11 +54,14 @@ A native TIA Portal Add-in providing a direct "hotline" from the Engineering UI 
 
 ## 🚀 Getting Started
 
+### Tia Agent works with frontier models such as (openai 5.4 , gemini 5.1-pro) tested should work on other top tier models 
+
 ### Prerequisites
 - **TIA Portal V20** (Current tested version).
 - **Siemens Openness** installed and configured.
 - **.NET Framework 4.8** (for the bridge and add-in).
 - **Pi Coding Agent** installed and running.
+- **Install Pi coding agent and it will help you set up 
 
 ### Installation
 1.  **Build the Bridge**: Compile the `TiaLocalBridge` solution.
