@@ -46,6 +46,7 @@ The system follows the Pi Coding Agent's extension model, consisting of two main
 
 ### 1. [TiaLocalBridge](./TiaLocalBridge)
 A high-performance C# command bridge utilizing the **Siemens Openness API**. It acts as the "hands" of the AI agent.
+complete source code avalaible , by default tia agent will try to work with birdge if asked can extend the bridge with not implemented functionailities 
 
 ### 2. [TiaPiAddin](./TiaPiAddin)
 A native TIA Portal Add-in providing a direct "hotline" from the Engineering UI to the Pi Agent.
@@ -85,7 +86,7 @@ To allow the Bridge to interact with TIA Portal, you must ensure Openness is cor
 
 - **Experimental**: This project is currently in **active development and testing**. 
 - **Open Source**: We believe in open collaboration for the future of industrial automation.
-- **YOLO Default**: Following the Pi Coding Agent philosophy, this tool defaults to high-autonomy operation.
+- **YOLO Default**: Following the Pi Coding Agent philosophy, this tool defaults to high-autonomy operation not only on tia portal also on your complete system .
 - **Safety First**: **NEVER** use this agent directly on a live production PLC. Always validate AI-generated code in a simulated environment (PLCSIM) and perform thorough manual reviews before deployment.
 
 ---
