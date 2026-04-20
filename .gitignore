@@ -1,0 +1,6 @@
+# Build outputs
+**/bin/
+**/obj/
+
+# Local logs and scratch files
+log.txt

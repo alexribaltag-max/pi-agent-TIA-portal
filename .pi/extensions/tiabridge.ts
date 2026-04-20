@@ -4,6 +4,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as crypto from "node:crypto";
 import * as readline from "node:readline";
+import * as http from "node:http";
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 import {
@@ -18,6 +19,10 @@ export default function (pi: ExtensionAPI) {
   let rl: readline.Interface | null = null;
   let isStarting = false;
   
+  let httpServer: http.Server | null = null;
+  const HTTP_PORT = 31415;
+
+  
   // Pending promises waiting for the next response from the bridge
   const pendingRequests: Array<{
     resolve: (value: any) => void;
@@ -26,6 +31,17 @@ export default function (pi: ExtensionAPI) {
 
   // Buffer to capture unhandled lines/events if no pending request
   const eventBuffer: any[] = [];
+
+  let connectedProject = "Unknown";
+  let portalStatus = "Disconnected";
+
+  function updateTuiStatus(ctx: any) {
+    if (httpServer && httpServer.listening) {
+      ctx.ui.setStatus("tiabridge-http", ctx.ui.theme.fg("accent", `[TIA Bridge HTTP: :${HTTP_PORT} | Portal: ${portalStatus} | Project: ${connectedProject}]`));
+    } else {
+      ctx.ui.setStatus("tiabridge-http", ctx.ui.theme.fg("dim", `[TIA Bridge: HTTP Offline | Portal: ${portalStatus} | Project: ${connectedProject}]`));
+    }
+  }
 
   async function ensureProcess(ctx: any): Promise<void> {
     if (bridgeProcess && !bridgeProcess.killed) return;
@@ -56,6 +72,8 @@ export default function (pi: ExtensionAPI) {
       bridgeProcess.on("exit", () => {
         bridgeProcess = null;
         rl = null;
+        portalStatus = "Disconnected";
+        updateTuiStatus(ctx);
         for (const req of pendingRequests) {
           req.reject(new Error("Bridge process exited unexpectedly"));
         }
@@ -74,7 +92,29 @@ export default function (pi: ExtensionAPI) {
           if (parsed.type === "event") {
             // Collect events to include in the final response
             eventBuffer.push(parsed);
+            
+            if (parsed.event === "FOUND_EXISTING_TIA_PORTAL") {
+              portalStatus = "Connected";
+              updateTuiStatus(ctx);
+            }
           } else if (parsed.type === "response" || parsed.type === "fatal") {
+            if (parsed.portalConnected !== undefined) {
+               portalStatus = parsed.portalConnected ? "Connected" : "Disconnected";
+            }
+            if (parsed.command && parsed.command.startsWith("GETDEVICES|")) {
+               const parts = parsed.command.split("|");
+               if (parts.length > 1) {
+                 connectedProject = parts[1];
+               }
+            } else if (parsed.command === "LIST" && parsed.resultType === "text" && parsed.result) {
+               // extract project name if LIST prints it
+               const match = parsed.result.match(/Project '([^']+)'/);
+               if (match) {
+                 connectedProject = match[1];
+               }
+            }
+            updateTuiStatus(ctx);
+
             if (pendingRequests.length > 0) {
               const req = pendingRequests.shift();
               // Include buffered events in the result
@@ -110,6 +150,60 @@ export default function (pi: ExtensionAPI) {
     });
   }
 
+  pi.on("session_start", async (_event, ctx) => {
+    if (!httpServer) {
+      httpServer = http.createServer((req, res) => {
+        // Only allow localhost
+        if (req.socket.remoteAddress !== "127.0.0.1" && req.socket.remoteAddress !== "::1") {
+          res.writeHead(403);
+          res.end();
+          return;
+        }
+
+        if (req.method === "POST" && req.url === "/api/tia-action") {
+          let body = "";
+          req.on("data", chunk => { body += chunk.toString(); });
+          req.on("end", () => {
+            try {
+              const payload = JSON.parse(body);
+              
+              const targetStr = payload.block ? `block '${payload.block}'` : (payload.target ? `'${payload.target}'` : "the selected object");
+              const deviceStr = payload.device ? ` in device '${payload.device}'` : "";
+              const actionStr = payload.action || "review";
+              
+              const prompt = `The user selected ${targetStr}${deviceStr} in TIA Portal for: ${actionStr}. Please use the tiabridge to fetch the relevant item, analyze it, and perform the requested action.`;
+              
+              pi.sendUserMessage(prompt, { deliverAs: "followUp" });
+              
+              res.writeHead(200, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ status: "ok" }));
+            } catch (e: any) {
+              res.writeHead(400, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ error: e.message }));
+            }
+          });
+        } else {
+          res.writeHead(404);
+          res.end();
+        }
+      });
+      
+      httpServer.listen(HTTP_PORT, "127.0.0.1", () => {
+        updateTuiStatus(ctx);
+      });
+      
+      httpServer.on("error", (e: any) => {
+        if (e.code === "EADDRINUSE") {
+          ctx.ui.notify(`TIA Bridge: Port ${HTTP_PORT} in use, Add-in triggers disabled.`, "warning");
+        } else {
+          ctx.ui.notify(`TIA Bridge HTTP Error: ${e.message}`, "error");
+        }
+      });
+    } else if (httpServer.listening) {
+      updateTuiStatus(ctx);
+    }
+  });
+
   pi.on("session_shutdown", async () => {
     if (bridgeProcess && !bridgeProcess.killed) {
       bridgeProcess.stdin?.write("EXIT\n");
@@ -119,6 +213,11 @@ export default function (pi: ExtensionAPI) {
           bridgeProcess.kill();
         }
       }, 500);
+    }
+    
+    if (httpServer) {
+      httpServer.close();
+      httpServer = null;
     }
   });
 
