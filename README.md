@@ -86,8 +86,10 @@ To allow the Bridge to interact with TIA Portal, you must ensure Openness is cor
 
 - **Experimental**: This project is currently in **active development and testing**. 
 - **Open Source**: We believe in open collaboration for the future of industrial automation.
-- **YOLO Default**: Following the Pi Coding Agent philosophy, this tool defaults to high-autonomy operation not only on tia portal also on your complete system .
+- **YOLO Default**: Following the Pi Coding Agent philosophy, this tool defaults to high-autonomy operation not only on tia portal also on your complete system . (please use a VM):
+  https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7KwG7LUubAmwjC2ENRnPAGtVuXPB6ibJ9dUmlw81VcWOJrLLgpHVnyVtVMXz3HTs&s&ec=121638500
 - **Safety First**: **NEVER** use this agent directly on a live production PLC. Always validate AI-generated code in a simulated environment (PLCSIM) and perform thorough manual reviews before deployment.
+- **Almost 90% of the code on tis repo is AI generated with human supervision**: if you re not confortable with that 
 
 ---
 
