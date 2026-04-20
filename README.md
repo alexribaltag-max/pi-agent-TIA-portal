@@ -2,8 +2,8 @@
 
 **The ultimate bridge between AI and Industrial Automation.**
 
-This project transforms your TIA Portal engineering experience by extending the **Pi Coding Agent** to the world of Siemens automation. It allows an AI agent to "see," "interact," and "modify" your TIA Portal projects, PLC code, HMI screens, and hardware configurations in real-time using the Openess extension form Siemens TIA portal .
-![alt text](image.png)
+This project transforms your TIA Portal engineering experience by extending the **Pi Coding Agent** to the world of Siemens automation. It allows an AI agent to "see," "interact," and "modify" your TIA Portal projects, PLC code, HMI screens, and hardware configurations in real time using the Siemens TIA Portal Openness API.
+![Pi TIA Agent overview](images/image.png)
 ---
 
 ## 🤖 What is the Pi Coding Agent?
@@ -91,7 +91,7 @@ To allow the Bridge to interact with TIA Portal, you must ensure Openness is cor
 - `TiaLocalBridge/`: The core Openness automation engine.
 - `TiaPiAddin/`: The TIA Portal UI extension.
 - `examples/`: Practical tutorials and example workflows.
-- `scripts/`: Useful PowerShell utilities for testing and inspection.
+- `TiaLocalBridge/scripts/`: Useful PowerShell utilities for testing and inspection.
 
 ---
 

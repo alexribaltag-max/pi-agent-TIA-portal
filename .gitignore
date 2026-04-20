@@ -1,6 +1,14 @@
 # Build outputs
 **/bin/
 **/obj/
+**/.vs/
+
+# Generated exports and local analysis artifacts
+exports-analysis/
+
+# Editor temp files
+*.swp
+*.swo
 
 # Local logs and scratch files
 log.txt
