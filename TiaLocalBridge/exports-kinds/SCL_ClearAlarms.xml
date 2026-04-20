@@ -1,0 +1,644 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document>
+  <Engineering version="V20" />
+  <SW.Blocks.FC ID="0">
+    <AttributeList>
+      <Interface><Sections xmlns="http://www.siemens.com/automation/Openness/SW/Interface/v5">
+  <Section Name="Input" />
+  <Section Name="Output" />
+  <Section Name="InOut">
+    <Member Name="error" Datatype="Array[*] of &quot;LAF_typeAlarm&quot;">
+      <Comment>
+        <MultiLanguageText Lang="en-US">Errors</MultiLanguageText>
+      </Comment>
+    </Member>
+    <Member Name="warning" Datatype="Array[*] of &quot;LAF_typeAlarm&quot;">
+      <Comment>
+        <MultiLanguageText Lang="en-US">Warnings</MultiLanguageText>
+      </Comment>
+    </Member>
+    <Member Name="information" Datatype="Array[*] of &quot;LAF_typeAlarm&quot;">
+      <Comment>
+        <MultiLanguageText Lang="en-US">Informations of the EM</MultiLanguageText>
+      </Comment>
+    </Member>
+    <Member Name="criteriaAnalysis" Datatype="Array[*] of &quot;LAF_typeAlarm&quot;">
+      <Comment>
+        <MultiLanguageText Lang="en-US">CriteriaAnalysis of the EM</MultiLanguageText>
+      </Comment>
+    </Member>
+  </Section>
+  <Section Name="Temp">
+    <Member Name="tempIndex" Datatype="DInt">
+      <Comment>
+        <MultiLanguageText Lang="en-US">For loop variable</MultiLanguageText>
+      </Comment>
+    </Member>
+  </Section>
+  <Section Name="Constant">
+    <Member Name="NO_REACTION" Datatype="USInt" />
+  </Section>
+  <Section Name="Return">
+    <Member Name="Ret_Val" Datatype="Void" />
+  </Section>
+</Sections></Interface>
+      <IsIECCheckEnabled>true</IsIECCheckEnabled>
+      <MemoryLayout>Optimized</MemoryLayout>
+      <Name>ClearAlarms</Name>
+      <Namespace />
+      <Number>14</Number>
+      <ProgrammingLanguage>SCL</ProgrammingLanguage>
+      <SetENOAutomatically>true</SetENOAutomatically>
+    </AttributeList>
+    <ObjectList>
+      <MultilingualText ID="1" CompositionName="Comment">
+        <ObjectList>
+          <MultilingualTextItem ID="2" CompositionName="Items">
+            <AttributeList>
+              <Culture>en-US</Culture>
+              <Text />
+            </AttributeList>
+          </MultilingualTextItem>
+        </ObjectList>
+      </MultilingualText>
+      <SW.Blocks.CompileUnit ID="3" CompositionName="CompileUnits">
+        <AttributeList>
+          <NetworkSource><StructuredText xmlns="http://www.siemens.com/automation/Openness/SW/NetworkSource/StructuredText/v4">
+  <Token Text="REGION" UId="21" />
+  <Blank UId="22" />
+  <Text UId="23">BLOCK INFO HEADER</Text>
+  <NewLine UId="24" />
+  <Blank Num="2" UId="25" />
+  <LineComment UId="26">
+    <Text UId="27">===============================================================================</Text>
+  </LineComment>
+  <NewLine UId="28" />
+  <Blank Num="2" UId="29" />
+  <LineComment UId="30">
+    <Text UId="31"> Siemens AG / (c)Copyright 2025</Text>
+  </LineComment>
+  <NewLine UId="32" />
+  <Blank Num="2" UId="33" />
+  <LineComment UId="34">
+    <Text UId="35">-------------------------------------------------------------------------------</Text>
+  </LineComment>
+  <NewLine UId="36" />
+  <Blank Num="2" UId="37" />
+  <LineComment UId="38">
+    <Text UId="39"> Title:            LAF_ClearAlarms</Text>
+  </LineComment>
+  <NewLine UId="40" />
+  <Blank Num="2" UId="41" />
+  <LineComment UId="42">
+    <Text UId="43"> Comment/Function: Clears all the current active alarms</Text>
+  </LineComment>
+  <NewLine UId="44" />
+  <Blank Num="2" UId="45" />
+  <LineComment UId="46">
+    <Text UId="47"> Library/Family:   LAF - Library of Automation Framework</Text>
+  </LineComment>
+  <NewLine UId="48" />
+  <Blank Num="2" UId="49" />
+  <LineComment UId="50">
+    <Text UId="51"> Author:           Siemens Digital Industries</Text>
+  </LineComment>
+  <NewLine UId="52" />
+  <Blank Num="2" UId="53" />
+  <LineComment UId="54">
+    <Text UId="55"> Tested with:      S7-PLCSIM V20 </Text>
+  </LineComment>
+  <NewLine UId="56" />
+  <Blank Num="2" UId="57" />
+  <LineComment UId="58">
+    <Text UId="59"> Engineering:      TIA Portal V20</Text>
+  </LineComment>
+  <NewLine UId="60" />
+  <Blank Num="2" UId="61" />
+  <LineComment UId="62">
+    <Text UId="63"> Restrictions:     -</Text>
+  </LineComment>
+  <NewLine UId="64" />
+  <Blank Num="2" UId="65" />
+  <LineComment UId="66">
+    <Text UId="67"> Requirements:     -</Text>
+  </LineComment>
+  <NewLine UId="68" />
+  <Blank Num="2" UId="69" />
+  <LineComment UId="70">
+    <Text UId="71">-------------------------------------------------------------------------------</Text>
+  </LineComment>
+  <NewLine UId="72" />
+  <Blank Num="2" UId="73" />
+  <LineComment UId="74">
+    <Text UId="75"> Change log table:</Text>
+  </LineComment>
+  <NewLine UId="76" />
+  <Blank Num="2" UId="77" />
+  <LineComment UId="78">
+    <Text UId="79"> Version  | Date       | Expert in charge        | Changes applied</Text>
+  </LineComment>
+  <NewLine UId="80" />
+  <Blank Num="2" UId="81" />
+  <LineComment UId="82">
+    <Text UId="83">----------|------------|-------------------------|-----------------------------</Text>
+  </LineComment>
+  <NewLine UId="84" />
+  <Blank Num="2" UId="85" />
+  <LineComment UId="86">
+    <Text UId="87"> 01.01.00 | 21.06.2024 | SIMATIC Systems Support | First released version</Text>
+  </LineComment>
+  <NewLine UId="88" />
+  <Blank Num="2" UId="89" />
+  <LineComment UId="90">
+    <Text UId="91"> 01.02.00 | 05.08.2024 | SIMATIC Systems Support | Block information properties updated</Text>
+  </LineComment>
+  <NewLine UId="92" />
+  <Blank Num="2" UId="93" />
+  <LineComment UId="94">
+    <Text UId="95"> 02.00.00 | 31.03.2025 | SIMATIC Systems Support | Header information updated and removed commandsToUnit</Text>
+  </LineComment>
+  <NewLine UId="96" />
+  <Blank Num="2" UId="97" />
+  <LineComment UId="98">
+    <Text UId="99">===============================================================================</Text>
+  </LineComment>
+  <NewLine UId="100" />
+  <Token Text="END_REGION" UId="101" />
+  <Blank UId="102" />
+  <Text UId="103">BLOCK INFO HEADER</Text>
+  <NewLine Num="2" UId="104" />
+  <Token Text="REGION" UId="105" />
+  <Blank UId="106" />
+  <Text UId="107">errorNoReaction</Text>
+  <NewLine UId="108" />
+  <Blank Num="2" UId="109" />
+  <Token Text="FOR" UId="110" />
+  <Blank UId="111" />
+  <Access Scope="LocalVariable" UId="112">
+    <Symbol UId="113">
+      <Component Name="tempIndex" UId="114" />
+    </Symbol>
+  </Access>
+  <Blank UId="115" />
+  <Token Text=":=" UId="116" />
+  <Blank UId="117" />
+  <Access Scope="Call" UId="118">
+    <Instruction Name="LOWER_BOUND" UId="119">
+      <Token Text="(" UId="120" />
+      <Parameter Name="ARR" UId="121">
+        <Blank UId="122" />
+        <Token Text=":=" UId="123" />
+        <Blank UId="124" />
+        <Access Scope="LocalVariable" UId="125">
+          <Symbol UId="126">
+            <Component Name="error" UId="127" />
+          </Symbol>
+        </Access>
+      </Parameter>
+      <Token Text="," UId="128" />
+      <Blank UId="129" />
+      <Parameter Name="DIM" UId="130">
+        <Blank UId="131" />
+        <Token Text=":=" UId="132" />
+        <Blank UId="133" />
+        <Access Scope="LiteralConstant" UId="134">
+          <Constant UId="135">
+            <ConstantValue UId="137">1</ConstantValue>
+          </Constant>
+        </Access>
+      </Parameter>
+      <Token Text=")" UId="139" />
+    </Instruction>
+  </Access>
+  <Blank UId="140" />
+  <Token Text="TO" UId="141" />
+  <Blank UId="142" />
+  <Access Scope="Call" UId="143">
+    <Instruction Name="UPPER_BOUND" UId="144">
+      <Token Text="(" UId="145" />
+      <Parameter Name="ARR" UId="146">
+        <Blank UId="147" />
+        <Token Text=":=" UId="148" />
+        <Blank UId="149" />
+        <Access Scope="LocalVariable" UId="150">
+          <Symbol UId="151">
+            <Component Name="error" UId="152" />
+          </Symbol>
+        </Access>
+      </Parameter>
+      <Token Text="," UId="153" />
+      <Blank UId="154" />
+      <Parameter Name="DIM" UId="155">
+        <Blank UId="156" />
+        <Token Text=":=" UId="157" />
+        <Blank UId="158" />
+        <Access Scope="LiteralConstant" UId="159">
+          <Constant UId="160">
+            <ConstantValue UId="162">1</ConstantValue>
+          </Constant>
+        </Access>
+      </Parameter>
+      <Token Text=")" UId="164" />
+    </Instruction>
+  </Access>
+  <Blank UId="165" />
+  <Token Text="DO" UId="166" />
+  <NewLine UId="167" />
+  <Blank Num="4" UId="168" />
+  <Access Scope="LocalVariable" UId="169">
+    <Symbol UId="170">
+      <Component Name="error" UId="171">
+        <Token Text="[" UId="172" />
+        <Access Scope="LocalVariable" UId="173">
+          <Symbol UId="174">
+            <Component Name="tempIndex" UId="175" />
+          </Symbol>
+        </Access>
+        <Token Text="]" UId="176" />
+      </Component>
+      <Token Text="." UId="177" />
+      <Component Name="trigger" UId="178" />
+    </Symbol>
+  </Access>
+  <Blank UId="179" />
+  <Token Text=":=" UId="180" />
+  <Blank UId="181" />
+  <Access Scope="LiteralConstant" UId="182">
+    <Constant UId="183">
+      <ConstantValue UId="185">false</ConstantValue>
+    </Constant>
+  </Access>
+  <Token Text=";" UId="186" />
+  <NewLine UId="187" />
+  <Blank Num="2" UId="188" />
+  <Token Text="END_FOR" UId="189" />
+  <Token Text=";" UId="190" />
+  <NewLine UId="191" />
+  <Token Text="END_REGION" UId="192" />
+  <NewLine Num="3" UId="193" />
+  <Token Text="REGION" UId="194" />
+  <Blank UId="195" />
+  <Text UId="196">warningNoReaction</Text>
+  <NewLine UId="197" />
+  <Blank Num="2" UId="198" />
+  <Token Text="FOR" UId="199" />
+  <Blank UId="200" />
+  <Access Scope="LocalVariable" UId="201">
+    <Symbol UId="202">
+      <Component Name="tempIndex" UId="203" />
+    </Symbol>
+  </Access>
+  <Blank UId="204" />
+  <Token Text=":=" UId="205" />
+  <Blank UId="206" />
+  <Access Scope="Call" UId="207">
+    <Instruction Name="LOWER_BOUND" UId="208">
+      <Token Text="(" UId="209" />
+      <Parameter Name="ARR" UId="210">
+        <Blank UId="211" />
+        <Token Text=":=" UId="212" />
+        <Blank UId="213" />
+        <Access Scope="LocalVariable" UId="214">
+          <Symbol UId="215">
+            <Component Name="warning" UId="216" />
+          </Symbol>
+        </Access>
+      </Parameter>
+      <Token Text="," UId="217" />
+      <Blank UId="218" />
+      <Parameter Name="DIM" UId="219">
+        <Blank UId="220" />
+        <Token Text=":=" UId="221" />
+        <Blank UId="222" />
+        <Access Scope="LiteralConstant" UId="223">
+          <Constant UId="224">
+            <ConstantValue UId="226">1</ConstantValue>
+          </Constant>
+        </Access>
+      </Parameter>
+      <Token Text=")" UId="228" />
+    </Instruction>
+  </Access>
+  <Blank UId="229" />
+  <Token Text="TO" UId="230" />
+  <Blank UId="231" />
+  <Access Scope="Call" UId="232">
+    <Instruction Name="UPPER_BOUND" UId="233">
+      <Token Text="(" UId="234" />
+      <Parameter Name="ARR" UId="235">
+        <Blank UId="236" />
+        <Token Text=":=" UId="237" />
+        <Blank UId="238" />
+        <Access Scope="LocalVariable" UId="239">
+          <Symbol UId="240">
+            <Component Name="warning" UId="241" />
+          </Symbol>
+        </Access>
+      </Parameter>
+      <Token Text="," UId="242" />
+      <Blank UId="243" />
+      <Parameter Name="DIM" UId="244">
+        <Blank UId="245" />
+        <Token Text=":=" UId="246" />
+        <Blank UId="247" />
+        <Access Scope="LiteralConstant" UId="248">
+          <Constant UId="249">
+            <ConstantValue UId="251">1</ConstantValue>
+          </Constant>
+        </Access>
+      </Parameter>
+      <Token Text=")" UId="253" />
+    </Instruction>
+  </Access>
+  <Blank UId="254" />
+  <Token Text="DO" UId="255" />
+  <NewLine UId="256" />
+  <Blank Num="4" UId="257" />
+  <Access Scope="LocalVariable" UId="258">
+    <Symbol UId="259">
+      <Component Name="warning" UId="260">
+        <Token Text="[" UId="261" />
+        <Access Scope="LocalVariable" UId="262">
+          <Symbol UId="263">
+            <Component Name="tempIndex" UId="264" />
+          </Symbol>
+        </Access>
+        <Token Text="]" UId="265" />
+      </Component>
+      <Token Text="." UId="266" />
+      <Component Name="trigger" UId="267" />
+    </Symbol>
+  </Access>
+  <Blank UId="268" />
+  <Token Text=":=" UId="269" />
+  <Blank UId="270" />
+  <Access Scope="LiteralConstant" UId="271">
+    <Constant UId="272">
+      <ConstantValue UId="274">false</ConstantValue>
+    </Constant>
+  </Access>
+  <Token Text=";" UId="275" />
+  <NewLine UId="276" />
+  <Blank Num="2" UId="277" />
+  <Token Text="END_FOR" UId="278" />
+  <Token Text=";" UId="279" />
+  <NewLine UId="280" />
+  <Token Text="END_REGION" UId="281" />
+  <NewLine Num="3" UId="282" />
+  <Token Text="REGION" UId="283" />
+  <Blank UId="284" />
+  <Text UId="285">information</Text>
+  <NewLine UId="286" />
+  <Blank Num="2" UId="287" />
+  <Token Text="FOR" UId="288" />
+  <Blank UId="289" />
+  <Access Scope="LocalVariable" UId="290">
+    <Symbol UId="291">
+      <Component Name="tempIndex" UId="292" />
+    </Symbol>
+  </Access>
+  <Blank UId="293" />
+  <Token Text=":=" UId="294" />
+  <Blank UId="295" />
+  <Access Scope="Call" UId="296">
+    <Instruction Name="LOWER_BOUND" UId="297">
+      <Token Text="(" UId="298" />
+      <Parameter Name="ARR" UId="299">
+        <Blank UId="300" />
+        <Token Text=":=" UId="301" />
+        <Blank UId="302" />
+        <Access Scope="LocalVariable" UId="303">
+          <Symbol UId="304">
+            <Component Name="information" UId="305" />
+          </Symbol>
+        </Access>
+      </Parameter>
+      <Token Text="," UId="306" />
+      <Blank UId="307" />
+      <Parameter Name="DIM" UId="308">
+        <Blank UId="309" />
+        <Token Text=":=" UId="310" />
+        <Blank UId="311" />
+        <Access Scope="LiteralConstant" UId="312">
+          <Constant UId="313">
+            <ConstantValue UId="315">1</ConstantValue>
+          </Constant>
+        </Access>
+      </Parameter>
+      <Token Text=")" UId="317" />
+    </Instruction>
+  </Access>
+  <Blank UId="318" />
+  <Token Text="TO" UId="319" />
+  <Blank UId="320" />
+  <Access Scope="Call" UId="321">
+    <Instruction Name="UPPER_BOUND" UId="322">
+      <Token Text="(" UId="323" />
+      <Parameter Name="ARR" UId="324">
+        <Blank UId="325" />
+        <Token Text=":=" UId="326" />
+        <Blank UId="327" />
+        <Access Scope="LocalVariable" UId="328">
+          <Symbol UId="329">
+            <Component Name="information" UId="330" />
+          </Symbol>
+        </Access>
+      </Parameter>
+      <Token Text="," UId="331" />
+      <Blank UId="332" />
+      <Parameter Name="DIM" UId="333">
+        <Blank UId="334" />
+        <Token Text=":=" UId="335" />
+        <Blank UId="336" />
+        <Access Scope="LiteralConstant" UId="337">
+          <Constant UId="338">
+            <ConstantValue UId="340">1</ConstantValue>
+          </Constant>
+        </Access>
+      </Parameter>
+      <Token Text=")" UId="342" />
+    </Instruction>
+  </Access>
+  <Blank UId="343" />
+  <Token Text="DO" UId="344" />
+  <NewLine UId="345" />
+  <Blank Num="4" UId="346" />
+  <Access Scope="LocalVariable" UId="347">
+    <Symbol UId="348">
+      <Component Name="information" UId="349">
+        <Token Text="[" UId="350" />
+        <Access Scope="LocalVariable" UId="351">
+          <Symbol UId="352">
+            <Component Name="tempIndex" UId="353" />
+          </Symbol>
+        </Access>
+        <Token Text="]" UId="354" />
+      </Component>
+      <Token Text="." UId="355" />
+      <Component Name="trigger" UId="356" />
+    </Symbol>
+  </Access>
+  <Blank UId="357" />
+  <Token Text=":=" UId="358" />
+  <Blank UId="359" />
+  <Access Scope="LiteralConstant" UId="360">
+    <Constant UId="361">
+      <ConstantValue UId="363">false</ConstantValue>
+    </Constant>
+  </Access>
+  <Token Text=";" UId="364" />
+  <NewLine UId="365" />
+  <Blank Num="2" UId="366" />
+  <Token Text="END_FOR" UId="367" />
+  <Token Text=";" UId="368" />
+  <NewLine UId="369" />
+  <Token Text="END_REGION" UId="370" />
+  <NewLine Num="2" UId="371" />
+  <Token Text="REGION" UId="372" />
+  <Blank UId="373" />
+  <Text UId="374">criteriaAnalysis</Text>
+  <NewLine UId="375" />
+  <Blank Num="2" UId="376" />
+  <Token Text="FOR" UId="377" />
+  <Blank UId="378" />
+  <Access Scope="LocalVariable" UId="379">
+    <Symbol UId="380">
+      <Component Name="tempIndex" UId="381" />
+    </Symbol>
+  </Access>
+  <Blank UId="382" />
+  <Token Text=":=" UId="383" />
+  <Blank UId="384" />
+  <Access Scope="Call" UId="385">
+    <Instruction Name="LOWER_BOUND" UId="386">
+      <Token Text="(" UId="387" />
+      <Parameter Name="ARR" UId="388">
+        <Blank UId="389" />
+        <Token Text=":=" UId="390" />
+        <Blank UId="391" />
+        <Access Scope="LocalVariable" UId="392">
+          <Symbol UId="393">
+            <Component Name="criteriaAnalysis" UId="394" />
+          </Symbol>
+        </Access>
+      </Parameter>
+      <Token Text="," UId="395" />
+      <Blank UId="396" />
+      <Parameter Name="DIM" UId="397">
+        <Blank UId="398" />
+        <Token Text=":=" UId="399" />
+        <Blank UId="400" />
+        <Access Scope="LiteralConstant" UId="401">
+          <Constant UId="402">
+            <ConstantValue UId="404">1</ConstantValue>
+          </Constant>
+        </Access>
+      </Parameter>
+      <Token Text=")" UId="406" />
+    </Instruction>
+  </Access>
+  <Blank UId="407" />
+  <Token Text="TO" UId="408" />
+  <Blank UId="409" />
+  <Access Scope="Call" UId="410">
+    <Instruction Name="UPPER_BOUND" UId="411">
+      <Token Text="(" UId="412" />
+      <Parameter Name="ARR" UId="413">
+        <Blank UId="414" />
+        <Token Text=":=" UId="415" />
+        <Blank UId="416" />
+        <Access Scope="LocalVariable" UId="417">
+          <Symbol UId="418">
+            <Component Name="criteriaAnalysis" UId="419" />
+          </Symbol>
+        </Access>
+      </Parameter>
+      <Token Text="," UId="420" />
+      <Blank UId="421" />
+      <Parameter Name="DIM" UId="422">
+        <Blank UId="423" />
+        <Token Text=":=" UId="424" />
+        <Blank UId="425" />
+        <Access Scope="LiteralConstant" UId="426">
+          <Constant UId="427">
+            <ConstantValue UId="429">1</ConstantValue>
+          </Constant>
+        </Access>
+      </Parameter>
+      <Token Text=")" UId="431" />
+    </Instruction>
+  </Access>
+  <Blank UId="432" />
+  <Token Text="DO" UId="433" />
+  <NewLine UId="434" />
+  <Blank Num="4" UId="435" />
+  <Access Scope="LocalVariable" UId="436">
+    <Symbol UId="437">
+      <Component Name="criteriaAnalysis" UId="438">
+        <Token Text="[" UId="439" />
+        <Access Scope="LocalVariable" UId="440">
+          <Symbol UId="441">
+            <Component Name="tempIndex" UId="442" />
+          </Symbol>
+        </Access>
+        <Token Text="]" UId="443" />
+      </Component>
+      <Token Text="." UId="444" />
+      <Component Name="trigger" UId="445" />
+    </Symbol>
+  </Access>
+  <Blank UId="446" />
+  <Token Text=":=" UId="447" />
+  <Blank UId="448" />
+  <Access Scope="LiteralConstant" UId="449">
+    <Constant UId="450">
+      <ConstantValue UId="452">false</ConstantValue>
+    </Constant>
+  </Access>
+  <Token Text=";" UId="453" />
+  <NewLine UId="454" />
+  <Blank Num="2" UId="455" />
+  <Token Text="END_FOR" UId="456" />
+  <Token Text=";" UId="457" />
+  <NewLine UId="458" />
+  <Token Text="END_REGION" UId="459" />
+  <NewLine UId="460" />
+</StructuredText></NetworkSource>
+          <ProgrammingLanguage>SCL</ProgrammingLanguage>
+        </AttributeList>
+        <ObjectList>
+          <MultilingualText ID="4" CompositionName="Comment">
+            <ObjectList>
+              <MultilingualTextItem ID="5" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text />
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+          <MultilingualText ID="6" CompositionName="Title">
+            <ObjectList>
+              <MultilingualTextItem ID="7" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text />
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+        </ObjectList>
+      </SW.Blocks.CompileUnit>
+      <MultilingualText ID="8" CompositionName="Title">
+        <ObjectList>
+          <MultilingualTextItem ID="9" CompositionName="Items">
+            <AttributeList>
+              <Culture>en-US</Culture>
+              <Text />
+            </AttributeList>
+          </MultilingualTextItem>
+        </ObjectList>
+      </MultilingualText>
+    </ObjectList>
+  </SW.Blocks.FC>
+</Document>

@@ -1,0 +1,22 @@
+﻿MultiLingualTexts:
+  - id: MLC_37U
+    en-US: First Cycle
+  - id: MLC_4ZG
+    en-US: Set bit to true in first cycle, and false in all other cycles
+  - id: MLC_rq
+    en-US: Call General
+  - id: MLC_pR
+    en-US: Call FB General which contains all global general functionality
+  - id: MLC_4nD
+    en-US: Call Manual Operation Lines
+  - id: MLC_3XG
+    en-US: Not used in Automation Framework Basic
+  - id: MLC_4wa
+    en-US: Call Diagnostic
+  - id: MLC_4jk
+    en-US: Call diagnostic functionality
+  - id: MLC_mZ
+    en-US: Call Settings
+  - id: MLC_4Wb
+    en-US: Call of PLC settings and diagnostics
+  

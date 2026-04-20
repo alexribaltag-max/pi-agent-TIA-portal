@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EC27457A-3F52-41B9-8837-5A6E606B0336}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>TiaLocalBridge</RootNamespace>
+    <AssemblyName>TiaLocalBridge</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Siemens.Engineering">
+      <HintPath>..\..\..\..\..\Program Files\Siemens\Automation\Portal V20\PublicAPI\V20\Siemens.Engineering.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Commands\CommandSupport.cs" />
+    <Compile Include="Commands\AddDeviceCommand.cs" />
+    <Compile Include="Commands\AddModuleCommand.cs" />
+    <Compile Include="Commands\AddPlcTagCommand.cs" />
+    <Compile Include="Commands\CompilePlcBlockCommand.cs" />
+    <Compile Include="Commands\CompilePlcCommand.cs" />
+    <Compile Include="Commands\CreateDbCommand.cs" />
+    <Compile Include="Commands\CreateFbCommand.cs" />
+    <Compile Include="Commands\CreateFcCommand.cs" />
+    <Compile Include="Commands\CreateProjectCommand.cs" />
+    <Compile Include="Commands\DeletePlcBlockCommand.cs" />
+    <Compile Include="Commands\DeletePlcTagCommand.cs" />
+    <Compile Include="Commands\DriveCommandSupport.cs" />
+    <Compile Include="Commands\ExportPlcBlockCommand.cs" />
+    <Compile Include="Commands\ExportPlcBlockDocumentsCommand.cs" />
+    <Compile Include="Commands\ExportPlcBlockSmartCommand.cs" />
+    <Compile Include="Commands\ExportPlcBlockSmartJsonCommand.cs" />
+    <Compile Include="Commands\GetDeviceItemsCommand.cs" />
+    <Compile Include="Commands\GetDevicesCommand.cs" />
+    <Compile Include="Commands\GetDevicesJsonCommand.cs" />
+    <Compile Include="Commands\GetDriveObjectsCommand.cs" />
+    <Compile Include="Commands\GetDriveTelegramsCommand.cs" />
+    <Compile Include="Commands\GetHwAddressesCommand.cs" />
+    <Compile Include="Commands\GetHwPropertiesCommand.cs" />
+    <Compile Include="Commands\GetHmiTagTablesCommand.cs" />
+    <Compile Include="Commands\GetHmiTagCrossReferencesCommand.cs" />
+    <Compile Include="Commands\AddHmiTagCommand.cs" />
+    <Compile Include="Commands\EnsureHmiTagCommand.cs" />
+    <Compile Include="Commands\UpdateHmiTagCommand.cs" />
+    <Compile Include="Commands\DeleteHmiTagCommand.cs" />
+    <Compile Include="Commands\GetHmiConnectionsCommand.cs" />
+    <Compile Include="Commands\GetHmiConnectionPropertiesCommand.cs" />
+    <Compile Include="Commands\AddHmiConnectionCommand.cs" />
+    <Compile Include="Commands\SetHmiConnectionPropertyCommand.cs" />
+    <Compile Include="Commands\GetHmiScreenGroupsCommand.cs" />
+    <Compile Include="Commands\CreateHmiScreenGroupCommand.cs" />
+    <Compile Include="Commands\GetHmiScreensCommand.cs" />
+    <Compile Include="Commands\CreateHmiScreenCommand.cs" />
+    <Compile Include="Commands\GetHmiScreenPropertiesCommand.cs" />
+    <Compile Include="Commands\SetHmiScreenPropertyCommand.cs" />
+    <Compile Include="Commands\GetHmiScreenItemsCommand.cs" />
+    <Compile Include="Commands\GetHmiScreenItemPropertiesCommand.cs" />
+    <Compile Include="Commands\GetHmiScreenItemTagBindingsCommand.cs" />
+    <Compile Include="Commands\AddHmiScreenItemCommand.cs" />
+    <Compile Include="Commands\EnsureHmiScreenItemCommand.cs" />
+    <Compile Include="Commands\SetHmiScreenItemPropertyCommand.cs" />
+    <Compile Include="Commands\SetHmiScreenItemTagBindingCommand.cs" />
+    <Compile Include="Commands\EnsureHmiScreenItemTagBindingCommand.cs" />
+    <Compile Include="Commands\GetHmiTagsCommand.cs" />
+    <Compile Include="Commands\GetPlugLocationsCommand.cs" />
+    <Compile Include="Commands\GetPlcBlockGroupsCommand.cs" />
+    <Compile Include="Commands\GetPlcBlockInfoCommand.cs" />
+    <Compile Include="Commands\GetPlcBlockInfoJsonCommand.cs" />
+    <Compile Include="Commands\GetPlcBlocksCommand.cs" />
+    <Compile Include="Commands\GetPlcBlocksJsonCommand.cs" />
+    <Compile Include="Commands\GetPlcBlockCrossReferencesCommand.cs" />
+    <Compile Include="Commands\GetPlcTagsCommand.cs" />
+    <Compile Include="Commands\GetPlcTagCrossReferencesCommand.cs" />
+    <Compile Include="Commands\GetPlcTagTablesCommand.cs" />
+    <Compile Include="Commands\HelpCommand.cs" />
+    <Compile Include="Commands\ImportPlcBlockSmartCommand.cs" />
+    <Compile Include="Commands\ImportPlcBlockSmartJsonCommand.cs" />
+    <Compile Include="Commands\ITiaCommand.cs" />
+    <Compile Include="Commands\ListProjectCommand.cs" />
+    <Compile Include="Commands\OpenProjectCommand.cs" />
+    <Compile Include="Commands\RenamePlcBlockCommand.cs" />
+    <Compile Include="Commands\SearchHardwareCatalogCommand.cs" />
+    <Compile Include="Commands\SetDriveTelegramAddressCommand.cs" />
+    <Compile Include="Commands\SetDriveTelegramNumberCommand.cs" />
+    <Compile Include="Commands\SetHwAddressCommand.cs" />
+    <Compile Include="Commands\SetHwPropertyCommand.cs" />
+    <Compile Include="Commands\UpdatePlcTagCommand.cs" />
+    <Compile Include="Commands\UpdateProgramCommand.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Commands\ConnectProfinetCommand.cs" />
+    <Compile Include="Commands\ConnectToSubnetCommand.cs" />
+    <Compile Include="Commands\CreateSubnetCommand.cs" />
+    <Compile Include="Commands\GetNetworkInterfacesCommand.cs" />
+    <Compile Include="Commands\GetIpAddressCommand.cs" />
+    <Compile Include="Commands\GetNodePropertiesCommand.cs" />
+    <Compile Include="Commands\SetNodePropertyCommand.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="Templates\CreateDb_Template.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Templates\CreateFb_SclTemplate.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Templates\CreateFc_SclTemplate.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

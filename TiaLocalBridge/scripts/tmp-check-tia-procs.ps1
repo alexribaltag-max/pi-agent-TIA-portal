@@ -1,0 +1,1 @@
+Get-Process | Where-Object { $_.ProcessName -like 'Siemens*' -or $_.ProcessName -like 'Tia*' -or $_.MainWindowTitle -like '*Totally Integrated Automation*' } | Select-Object ProcessName,Id,MainWindowTitle

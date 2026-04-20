@@ -1,0 +1,77 @@
+﻿{
+    S7_Optimized := "TRUE";
+    S7_Language := "LAD";
+    S7_Version := "0.1";
+}
+ORGANIZATION_BLOCK "Main"
+
+    {
+      S7_Language := "LAD";
+    }
+    NETWORK
+        RUNG wire#powerrail
+        END_RUNG
+
+    END_NETWORK
+
+    {
+      S7_Language := "LAD";
+      S7_NetworkTitle := "MLC_37U";
+      S7_NetworkComment := "MLC_4ZG";
+    }
+    NETWORK
+        RUNG wire#powerrail
+            Contact( #Initial_Call )
+            Coil( "Data".general.firstCycle )
+        END_RUNG
+
+    END_NETWORK
+
+    {
+      S7_Language := "LAD";
+      S7_NetworkTitle := "MLC_rq";
+      S7_NetworkComment := "MLC_pR";
+    }
+    NETWORK
+        RUNG wire#powerrail
+            "InstCallGeneral"()
+        END_RUNG
+
+    END_NETWORK
+
+    {
+      S7_Language := "LAD";
+      S7_NetworkTitle := "MLC_4nD";
+      S7_NetworkComment := "MLC_3XG";
+    }
+    NETWORK
+        RUNG wire#powerrail
+        END_RUNG
+
+    END_NETWORK
+
+    {
+      S7_Language := "LAD";
+      S7_NetworkTitle := "MLC_4wa";
+      S7_NetworkComment := "MLC_4jk";
+    }
+    NETWORK
+        RUNG wire#powerrail
+            "CallDiagnostic"()
+        END_RUNG
+
+    END_NETWORK
+
+    {
+      S7_Language := "LAD";
+      S7_NetworkTitle := "MLC_mZ";
+      S7_NetworkComment := "MLC_4Wb";
+    }
+    NETWORK
+        RUNG wire#powerrail
+            "CallSettings"()
+        END_RUNG
+
+    END_NETWORK
+
+END_ORGANIZATION_BLOCK

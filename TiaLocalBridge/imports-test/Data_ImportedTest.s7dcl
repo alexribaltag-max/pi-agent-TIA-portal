@@ -1,0 +1,14 @@
+        {
+           S7_Optimized := "TRUE";
+           S7_StandardRetain := "FALSE";
+           S7_Version := "0.1"
+        }
+    DATA_BLOCK Data_ImportedTest
+        VAR
+            { S7_Setpoint := "False" }
+            general : _.LAF_typeGeneralStatus;
+        END_VAR
+
+        general.simulation.plcInternal := TRUE;
+
+    END_DATA_BLOCK
