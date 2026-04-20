@@ -1,5 +1,0 @@
-OPEN|C:\Users\masias\Documents\Automation\PackagingMachine\PackagingMachine.ap20
-LIST
-GETDEVICES
-HELP
-EXIT

@@ -20,6 +20,8 @@ export default function (pi: ExtensionAPI) {
   let isStarting = false;
   
   let httpServer: http.Server | null = null;
+  let statusPollTimer: NodeJS.Timeout | null = null;
+  let isStatusPolling = false;
   const HTTP_PORT = 31415;
 
   
@@ -41,6 +43,45 @@ export default function (pi: ExtensionAPI) {
     } else {
       ctx.ui.setStatus("tiabridge-http", ctx.ui.theme.fg("dim", `[TIA Bridge: HTTP Offline | Portal: ${portalStatus} | Project: ${connectedProject}]`));
     }
+  }
+
+  function updateProjectFromResponse(parsed: any) {
+    if (parsed?.status === "success" && typeof parsed?.result === "string") {
+      const resultText = parsed.result.trim();
+      const match = resultText.match(/Project '([^']+)'/);
+      if (match) {
+        connectedProject = match[1];
+        return;
+      }
+
+      if (parsed?.command === "LIST" && resultText) {
+        connectedProject = resultText;
+        return;
+      }
+
+      if (/no open project/i.test(resultText) || /no project open/i.test(resultText)) {
+        connectedProject = "None";
+      }
+    }
+
+    if (parsed?.status === "success" && typeof parsed?.command === "string" && parsed.command.startsWith("OPEN|")) {
+      const projectPath = parsed.command.substring(5).trim();
+      if (projectPath) {
+        const baseName = path.basename(projectPath, path.extname(projectPath));
+        if (baseName) {
+          connectedProject = baseName;
+        }
+      }
+    }
+  }
+
+  function formatBridgeResult(result: any): string {
+    return JSON.stringify(result, null, 2);
+  }
+
+  function appendBridgeMessage(ctx: any, title: string, result: any) {
+    const text = `${title}\n\n${formatBridgeResult(result)}`;
+    ctx.sessionManager.appendCustomMessageEntry("tiabridge", text, true, { title, result });
   }
 
   async function ensureProcess(ctx: any): Promise<void> {
@@ -101,18 +142,7 @@ export default function (pi: ExtensionAPI) {
             if (parsed.portalConnected !== undefined) {
                portalStatus = parsed.portalConnected ? "Connected" : "Disconnected";
             }
-            if (parsed.command && parsed.command.startsWith("GETDEVICES|")) {
-               const parts = parsed.command.split("|");
-               if (parts.length > 1) {
-                 connectedProject = parts[1];
-               }
-            } else if (parsed.command === "LIST" && parsed.resultType === "text" && parsed.result) {
-               // extract project name if LIST prints it
-               const match = parsed.result.match(/Project '([^']+)'/);
-               if (match) {
-                 connectedProject = match[1];
-               }
-            }
+            updateProjectFromResponse(parsed);
             updateTuiStatus(ctx);
 
             if (pendingRequests.length > 0) {
@@ -141,13 +171,113 @@ export default function (pi: ExtensionAPI) {
     }
   }
 
-  async function sendCommand(command: string, ctx: any): Promise<any> {
+  function isDisposedPortalError(value: any): boolean {
+    const message = typeof value === "string"
+      ? value
+      : (value?.error || value?.message || "");
+
+    return message.includes("Access to a disposed object of type 'Siemens.Engineering.TiaPortal'")
+      || message.includes("TIA Portal has either been disposed or stopped running");
+  }
+
+  async function resetBridgeProcess(ctx: any, reason?: string): Promise<void> {
+    const processToStop = bridgeProcess;
+    const rlToClose = rl;
+
+    bridgeProcess = null;
+    rl = null;
+    portalStatus = "Disconnected";
+    connectedProject = "Unknown";
+    eventBuffer.length = 0;
+    updateTuiStatus(ctx);
+
+    try {
+      rlToClose?.close();
+    } catch {
+      // ignore
+    }
+
+    if (reason) {
+      ctx.ui.notify(`TIA Bridge reset: ${reason}`, "warning");
+    }
+
+    if (!processToStop || processToStop.killed) {
+      return;
+    }
+
+    await new Promise<void>((resolve) => {
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        resolve();
+      };
+
+      const timeout = setTimeout(() => {
+        try {
+          processToStop.kill();
+        } catch {
+          // ignore
+        }
+        finish();
+      }, 1000);
+
+      processToStop.once("exit", () => {
+        clearTimeout(timeout);
+        finish();
+      });
+
+      try {
+        processToStop.stdin?.write("EXIT\n");
+      } catch {
+        try {
+          processToStop.kill();
+        } catch {
+          // ignore
+        }
+      }
+    });
+  }
+
+  async function sendCommandOnce(command: string, ctx: any): Promise<any> {
     await ensureProcess(ctx);
-    
+
     return new Promise((resolve, reject) => {
       pendingRequests.push({ resolve, reject });
       bridgeProcess!.stdin!.write(command + "\n");
     });
+  }
+
+  async function sendCommand(command: string, ctx: any): Promise<any> {
+    try {
+      const result = await sendCommandOnce(command, ctx);
+      if (isDisposedPortalError(result)) {
+        await resetBridgeProcess(ctx, "TIA Portal instance was disposed. Reconnecting.");
+        return await sendCommandOnce(command, ctx);
+      }
+      return result;
+    } catch (error: any) {
+      if (isDisposedPortalError(error)) {
+        await resetBridgeProcess(ctx, "TIA Portal instance was disposed. Reconnecting.");
+        return await sendCommandOnce(command, ctx);
+      }
+      throw error;
+    }
+  }
+
+  async function pollBridgeStatus(ctx: any): Promise<void> {
+    if (isStatusPolling || isStarting || pendingRequests.length > 0 || !bridgeProcess || bridgeProcess.killed) {
+      return;
+    }
+
+    isStatusPolling = true;
+    try {
+      await sendCommand("LIST", ctx);
+    } catch {
+      // ignore background polling failures
+    } finally {
+      isStatusPolling = false;
+    }
   }
 
   pi.on("session_start", async (_event, ctx) => {
@@ -202,9 +332,29 @@ export default function (pi: ExtensionAPI) {
     } else if (httpServer.listening) {
       updateTuiStatus(ctx);
     }
+
+    void (async () => {
+      try {
+        await ensureProcess(ctx);
+        await pollBridgeStatus(ctx);
+      } catch {
+        // ignore startup refresh failures
+      }
+    })();
+
+    if (!statusPollTimer) {
+      statusPollTimer = setInterval(() => {
+        void pollBridgeStatus(ctx);
+      }, 10000);
+    }
   });
 
   pi.on("session_shutdown", async () => {
+    if (statusPollTimer) {
+      clearInterval(statusPollTimer);
+      statusPollTimer = null;
+    }
+
     if (bridgeProcess && !bridgeProcess.killed) {
       bridgeProcess.stdin?.write("EXIT\n");
       // Wait a moment for graceful exit, then kill
@@ -223,13 +373,66 @@ export default function (pi: ExtensionAPI) {
 
   pi.registerCommand("tiaportal", {
     description: "Start or check the TIA Portal Bridge process.",
-    handler: async (args, ctx) => {
+    handler: async (_args, ctx) => {
       ctx.ui.notify("Starting TIA Portal Bridge...", "info");
       try {
         await ensureProcess(ctx);
-        ctx.ui.notify("TIA Portal Bridge is running and ready to accept tool calls.", "success");
+        const result = await sendCommand("LIST", ctx);
+        appendBridgeMessage(ctx, "TIA Portal status", result);
+        ctx.ui.notify("TIA Portal Bridge is running and status was refreshed.", "success");
       } catch (err: any) {
         ctx.ui.notify(`Failed to start bridge: ${err.message}`, "error");
+      }
+    }
+  });
+
+  pi.registerCommand("tiastatus", {
+    description: "Query the current TIA Portal / project status.",
+    handler: async (_args, ctx) => {
+      try {
+        const result = await sendCommand("LIST", ctx);
+        appendBridgeMessage(ctx, "TIA Portal status", result);
+        ctx.ui.notify("TIA Portal status fetched.", "success");
+      } catch (err: any) {
+        ctx.ui.notify(`Failed to fetch TIA status: ${err.message}`, "error");
+      }
+    }
+  });
+
+  pi.registerCommand("tiaopen", {
+    description: "Open a TIA Portal project via the bridge. Usage: /tiaopen C:\\Path\\Project.ap20",
+    handler: async (args, ctx) => {
+      const projectPath = args.trim();
+      if (!projectPath) {
+        ctx.ui.notify("Usage: /tiaopen C:\\Path\\Project.apXX", "warning");
+        return;
+      }
+
+      try {
+        const result = await sendCommand(`OPEN|${projectPath}`, ctx);
+        appendBridgeMessage(ctx, `TIA open project: ${projectPath}`, result);
+        ctx.ui.notify("TIA project open command sent.", "success");
+      } catch (err: any) {
+        ctx.ui.notify(`Failed to open TIA project: ${err.message}`, "error");
+      }
+    }
+  });
+
+  pi.registerCommand("tiacmd", {
+    description: "Send a raw TiaLocalBridge command directly. Usage: /tiacmd GETDEVICES|ProjectName",
+    handler: async (args, ctx) => {
+      const command = args.trim();
+      if (!command) {
+        ctx.ui.notify("Usage: /tiacmd COMMAND|arg1|arg2", "warning");
+        return;
+      }
+
+      try {
+        const result = await sendCommand(command, ctx);
+        appendBridgeMessage(ctx, `TIA command: ${command}`, result);
+        ctx.ui.notify("TIA bridge command executed.", "success");
+      } catch (err: any) {
+        ctx.ui.notify(`TIA bridge command failed: ${err.message}`, "error");
       }
     }
   });

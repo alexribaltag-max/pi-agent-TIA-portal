@@ -1,0 +1,1521 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document>
+  <Engineering version="V20" />
+  <SW.Blocks.FB ID="0">
+    <AttributeList>
+      <Interface><Sections xmlns="http://www.siemens.com/automation/Openness/SW/Interface/v5">
+  <Section Name="Input" />
+  <Section Name="Output" />
+  <Section Name="InOut" />
+  <Section Name="Static">
+    <Member Name="statClockByteOld" Datatype="Byte">
+      <AttributeList>
+        <BooleanAttribute Name="ExternalWritable" SystemDefined="true">false</BooleanAttribute>
+      </AttributeList>
+      <Comment>
+        <MultiLanguageText Lang="en-US">Stored clock byte from last cycle for rising edge detection</MultiLanguageText>
+      </Comment>
+    </Member>
+    <Member Name="instLAF_PowerOnOff" Datatype="&quot;LAF_PowerOnOff&quot;">
+      <AttributeList>
+        <BooleanAttribute Name="ExternalWritable" SystemDefined="true">false</BooleanAttribute>
+      </AttributeList>
+    </Member>
+    <Member Name="instLAF_ClockGen" Datatype="&quot;LAF_ClockGenerator&quot;">
+      <AttributeList>
+        <BooleanAttribute Name="ExternalWritable" SystemDefined="true">false</BooleanAttribute>
+      </AttributeList>
+    </Member>
+    <Member Name="instLSNTP_Server" Datatype="&quot;LSNTP_Server&quot;">
+      <AttributeList>
+        <BooleanAttribute Name="ExternalWritable" SystemDefined="true">false</BooleanAttribute>
+      </AttributeList>
+    </Member>
+    <Member Name="instHmiManager" Datatype="&quot;LAF_HmiHeaderSingleUnitManager&quot;">
+      <AttributeList>
+        <BooleanAttribute Name="ExternalWritable" SystemDefined="true">false</BooleanAttribute>
+      </AttributeList>
+    </Member>
+  </Section>
+  <Section Name="Temp">
+    <Member Name="tempIndex" Datatype="DInt">
+      <Comment>
+        <MultiLanguageText Lang="en-US">Temp variable for for-loop</MultiLanguageText>
+      </Comment>
+    </Member>
+    <Member Name="tempHeaderConfig" Datatype="&quot;LUC_typeHeaderConfig&quot;" />
+    <Member Name="tempAcknowledgeFromHmi" Datatype="Bool">
+      <Comment>
+        <MultiLanguageText Lang="en-US">Summarized acknowledge command</MultiLanguageText>
+      </Comment>
+    </Member>
+    <Member Name="tempPowerOffFromHmi" Datatype="Bool">
+      <Comment>
+        <MultiLanguageText Lang="en-US">Summarized power off command</MultiLanguageText>
+      </Comment>
+    </Member>
+    <Member Name="tempPowerOnFromHmi" Datatype="Bool">
+      <Comment>
+        <MultiLanguageText Lang="en-US">Summarized power on command</MultiLanguageText>
+      </Comment>
+    </Member>
+    <Member Name="tempPowerStatus" Datatype="Int">
+      <Comment>
+        <MultiLanguageText Lang="en-US">0 - Off, 1 - Paused, 2 - On</MultiLanguageText>
+      </Comment>
+    </Member>
+    <Member Name="tempResultXor" Datatype="Byte">
+      <Comment>
+        <MultiLanguageText Lang="en-US">Interim result of XOR operation</MultiLanguageText>
+      </Comment>
+    </Member>
+    <Member Name="tempPosPulse" Datatype="Byte">
+      <Comment>
+        <MultiLanguageText Lang="en-US">Interim result puls calculation</MultiLanguageText>
+      </Comment>
+    </Member>
+    <Member Name="tempRetValLocT" Datatype="Int">
+      <Comment>
+        <MultiLanguageText Lang="en-US">Return value of RD_LOC_T</MultiLanguageText>
+      </Comment>
+    </Member>
+    <Member Name="tempUpperBoundUnits" Datatype="DInt">
+      <Comment>
+        <MultiLanguageText Lang="en-US">Upper bound of unitInterface array for loop execution</MultiLanguageText>
+      </Comment>
+    </Member>
+  </Section>
+  <Section Name="Constant">
+    <Member Name="RESET_BUTTON__COULD_BE_ADDED_HERE" Datatype="Bool">
+      <Comment>
+        <MultiLanguageText Lang="en-US">Placeholder for a potential global reset button</MultiLanguageText>
+      </Comment>
+      <StartValue>false</StartValue>
+    </Member>
+    <Member Name="DAYLIGHT_SAVING_TIME" Datatype="Int">
+      <Comment>
+        <MultiLanguageText Lang="en-US">Local time is output as daylight saving time</MultiLanguageText>
+      </Comment>
+      <StartValue>1</StartValue>
+    </Member>
+  </Section>
+</Sections></Interface>
+      <IsIECCheckEnabled>true</IsIECCheckEnabled>
+      <MemoryLayout>Optimized</MemoryLayout>
+      <MemoryReserve>100</MemoryReserve>
+      <Name>CallGeneral</Name>
+      <Namespace />
+      <Number>48</Number>
+      <ProgrammingLanguage>LAD</ProgrammingLanguage>
+      <SetENOAutomatically>true</SetENOAutomatically>
+    </AttributeList>
+    <ObjectList>
+      <MultilingualText ID="1" CompositionName="Comment">
+        <ObjectList>
+          <MultilingualTextItem ID="2" CompositionName="Items">
+            <AttributeList>
+              <Culture>en-US</Culture>
+              <Text>General functionality is called in this block. That includes blocks to generate system data as well as blocks that connect handle multiple HMIs.</Text>
+            </AttributeList>
+          </MultilingualTextItem>
+        </ObjectList>
+      </MultilingualText>
+      <SW.Blocks.CompileUnit ID="3" CompositionName="CompileUnits">
+        <AttributeList>
+          <NetworkSource><StructuredText xmlns="http://www.siemens.com/automation/Openness/SW/NetworkSource/StructuredText/v4">
+  <LineComment UId="21">
+    <Text UId="22">Execute the code just in the first cycle</Text>
+  </LineComment>
+  <NewLine UId="23" />
+  <Token Text="IF" UId="24" />
+  <Blank UId="25" />
+  <Access Scope="GlobalVariable" UId="26">
+    <Symbol UId="27">
+      <Component Name="Data" UId="28">
+        <BooleanAttribute Name="HasQuotes" UId="29">true</BooleanAttribute>
+      </Component>
+      <Token Text="." UId="30" />
+      <Component Name="general" UId="31" />
+      <Token Text="." UId="32" />
+      <Component Name="firstCycle" UId="33" />
+    </Symbol>
+  </Access>
+  <Blank UId="34" />
+  <Token Text="THEN" UId="35" />
+  <NewLine UId="36" />
+  <Blank Num="4" UId="37" />
+  <NewLine UId="38" />
+  <Blank Num="4" UId="39" />
+  <LineComment UId="40">
+    <Text UId="41">Initialize temp variables</Text>
+  </LineComment>
+  <NewLine UId="42" />
+  <Blank Num="4" UId="43" />
+  <Access Scope="LocalVariable" UId="44">
+    <Symbol UId="45">
+      <Component Name="tempHeaderConfig" UId="46" />
+      <Token Text="." UId="47" />
+      <Component Name="modeButtonsVisibility" UId="48" />
+    </Symbol>
+  </Access>
+  <Blank UId="49" />
+  <Token Text=":=" UId="50" />
+  <NewLine UId="51" />
+  <Blank Num="4" UId="52" />
+  <Access Scope="LocalVariable" UId="53">
+    <Symbol UId="54">
+      <Component Name="tempHeaderConfig" UId="55" />
+      <Token Text="." UId="56" />
+      <Component Name="stateButtonsVisibility" UId="57" />
+    </Symbol>
+  </Access>
+  <Blank UId="58" />
+  <Token Text=":=" UId="59" />
+  <NewLine UId="60" />
+  <Blank Num="4" UId="61" />
+  <Access Scope="LocalVariable" UId="62">
+    <Symbol UId="63">
+      <Component Name="tempHeaderConfig" UId="64" />
+      <Token Text="." UId="65" />
+      <Component Name="specialFunctionButtonsVisibility" UId="66" />
+    </Symbol>
+  </Access>
+  <Blank UId="67" />
+  <Token Text=":=" UId="68" />
+  <Blank UId="69" />
+  <Access Scope="LiteralConstant" UId="70">
+    <Constant UId="71">
+      <ConstantValue UId="73">16#0</ConstantValue>
+    </Constant>
+  </Access>
+  <Token Text=";" UId="74" />
+  <NewLine UId="75" />
+  <Blank Num="4" UId="76" />
+  <NewLine UId="77" />
+  <Blank Num="4" UId="78" />
+  <LineComment UId="79">
+    <Text UId="80">Loop through the units and summarize enabled modes, states and special functions</Text>
+  </LineComment>
+  <NewLine UId="81" />
+  <Blank Num="4" UId="82" />
+  <Token Text="FOR" UId="83" />
+  <Blank UId="84" />
+  <Access Scope="LocalVariable" UId="85">
+    <Symbol UId="86">
+      <Component Name="tempIndex" UId="87" />
+    </Symbol>
+  </Access>
+  <Blank UId="88" />
+  <Token Text=":=" UId="89" />
+  <Blank UId="90" />
+  <Access Scope="LiteralConstant" UId="91">
+    <Constant UId="92">
+      <ConstantValue UId="94">0</ConstantValue>
+    </Constant>
+  </Access>
+  <Blank UId="95" />
+  <Token Text="TO" UId="96" />
+  <Blank UId="97" />
+  <Access Scope="GlobalConstant" UId="98">
+    <Constant Name="NO_OF_UNITS" UId="99" />
+  </Access>
+  <Blank UId="102" />
+  <Token Text="DO" UId="103" />
+  <NewLine UId="104" />
+  <Blank Num="8" UId="105" />
+  <Access Scope="LocalVariable" UId="106">
+    <Symbol UId="107">
+      <Component Name="tempHeaderConfig" UId="108" />
+      <Token Text="." UId="109" />
+      <Component Name="modeButtonsVisibility" UId="110" />
+    </Symbol>
+  </Access>
+  <Blank UId="111" />
+  <Token Text=":=" UId="112" />
+  <Blank UId="113" />
+  <Access Scope="LocalVariable" UId="114">
+    <Symbol UId="115">
+      <Component Name="tempHeaderConfig" UId="116" />
+      <Token Text="." UId="117" />
+      <Component Name="modeButtonsVisibility" UId="118" />
+    </Symbol>
+  </Access>
+  <Blank UId="119" />
+  <Token Text="OR" UId="120" />
+  <Blank UId="121" />
+  <Access Scope="GlobalVariable" UId="122">
+    <Symbol UId="123">
+      <Component Name="Units" UId="124">
+        <BooleanAttribute Name="HasQuotes" UId="125">true</BooleanAttribute>
+      </Component>
+      <Token Text="." UId="126" />
+      <Component Name="unit" UId="127">
+        <Token Text="[" UId="128" />
+        <Access Scope="LocalVariable" UId="129">
+          <Symbol UId="130">
+            <Component Name="tempIndex" UId="131" />
+          </Symbol>
+        </Access>
+        <Token Text="]" UId="132" />
+      </Component>
+      <Token Text="." UId="133" />
+      <Component Name="stateMachine" UId="134" />
+      <Token Text="." UId="135" />
+      <Component Name="enabledModes" UId="136" />
+    </Symbol>
+  </Access>
+  <Token Text=";" UId="137" />
+  <NewLine UId="138" />
+  <Blank Num="8" UId="139" />
+  <Access Scope="LocalVariable" UId="140">
+    <Symbol UId="141">
+      <Component Name="tempHeaderConfig" UId="142" />
+      <Token Text="." UId="143" />
+      <Component Name="stateButtonsVisibility" UId="144" />
+    </Symbol>
+  </Access>
+  <Blank UId="145" />
+  <Token Text=":=" UId="146" />
+  <Blank UId="147" />
+  <Access Scope="LocalVariable" UId="148">
+    <Symbol UId="149">
+      <Component Name="tempHeaderConfig" UId="150" />
+      <Token Text="." UId="151" />
+      <Component Name="stateButtonsVisibility" UId="152" />
+    </Symbol>
+  </Access>
+  <Blank UId="153" />
+  <Token Text="OR" UId="154" />
+  <Blank UId="155" />
+  <Access Scope="GlobalVariable" UId="156">
+    <Symbol UId="157">
+      <Component Name="Units" UId="158">
+        <BooleanAttribute Name="HasQuotes" UId="159">true</BooleanAttribute>
+      </Component>
+      <Token Text="." UId="160" />
+      <Component Name="unit" UId="161">
+        <Token Text="[" UId="162" />
+        <Access Scope="LocalVariable" UId="163">
+          <Symbol UId="164">
+            <Component Name="tempIndex" UId="165" />
+          </Symbol>
+        </Access>
+        <Token Text="]" UId="166" />
+      </Component>
+      <Token Text="." UId="167" />
+      <Component Name="stateMachine" UId="168" />
+      <Token Text="." UId="169" />
+      <Component Name="enabledStates" UId="170" />
+    </Symbol>
+  </Access>
+  <Token Text=";" UId="171" />
+  <NewLine UId="172" />
+  <Blank Num="8" UId="173" />
+  <Access Scope="LocalVariable" UId="174">
+    <Symbol UId="175">
+      <Component Name="tempHeaderConfig" UId="176" />
+      <Token Text="." UId="177" />
+      <Component Name="specialFunctionButtonsVisibility" UId="178" />
+    </Symbol>
+  </Access>
+  <Blank UId="179" />
+  <Token Text=":=" UId="180" />
+  <Blank UId="181" />
+  <Access Scope="LocalVariable" UId="182">
+    <Symbol UId="183">
+      <Component Name="tempHeaderConfig" UId="184" />
+      <Token Text="." UId="185" />
+      <Component Name="specialFunctionButtonsVisibility" UId="186" />
+    </Symbol>
+  </Access>
+  <Blank UId="187" />
+  <Token Text="OR" UId="188" />
+  <Blank UId="189" />
+  <Access Scope="GlobalVariable" UId="190">
+    <Symbol UId="191">
+      <Component Name="Units" UId="192">
+        <BooleanAttribute Name="HasQuotes" UId="193">true</BooleanAttribute>
+      </Component>
+      <Token Text="." UId="194" />
+      <Component Name="unit" UId="195">
+        <Token Text="[" UId="196" />
+        <Access Scope="LocalVariable" UId="197">
+          <Symbol UId="198">
+            <Component Name="tempIndex" UId="199" />
+          </Symbol>
+        </Access>
+        <Token Text="]" UId="200" />
+      </Component>
+      <Token Text="." UId="201" />
+      <Component Name="stateMachine" UId="202" />
+      <Token Text="." UId="203" />
+      <Component Name="enabledSpecialFunctions" UId="204" />
+    </Symbol>
+  </Access>
+  <Token Text=";" UId="205" />
+  <NewLine UId="206" />
+  <Blank Num="4" UId="207" />
+  <Token Text="END_FOR" UId="208" />
+  <Token Text=";" UId="209" />
+  <NewLine UId="210" />
+  <Blank Num="4" UId="211" />
+  <NewLine UId="212" />
+  <Blank Num="4" UId="213" />
+  <LineComment UId="214">
+    <Text UId="215">Write summary to config of HMI header</Text>
+  </LineComment>
+  <NewLine UId="216" />
+  <Blank Num="4" UId="217" />
+  <Access Scope="GlobalVariable" UId="218">
+    <Symbol UId="219">
+      <Component Name="Hmi" UId="220">
+        <BooleanAttribute Name="HasQuotes" UId="221">true</BooleanAttribute>
+      </Component>
+      <Token Text="." UId="222" />
+      <Component Name="headerConfig" UId="223" />
+    </Symbol>
+  </Access>
+  <Blank UId="224" />
+  <Token Text=":=" UId="225" />
+  <Blank UId="226" />
+  <Access Scope="LocalVariable" UId="227">
+    <Symbol UId="228">
+      <Component Name="tempHeaderConfig" UId="229" />
+    </Symbol>
+  </Access>
+  <Token Text=";" UId="230" />
+  <NewLine UId="231" />
+  <Token Text="END_IF" UId="232" />
+  <Token Text=";" UId="233" />
+</StructuredText></NetworkSource>
+          <ProgrammingLanguage>SCL</ProgrammingLanguage>
+        </AttributeList>
+        <ObjectList>
+          <MultilingualText ID="4" CompositionName="Comment">
+            <ObjectList>
+              <MultilingualTextItem ID="5" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>This code is executed just in the first cycle after all units have published their state machine config in the unit interface during their own Startup OBs.</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+          <MultilingualText ID="6" CompositionName="Title">
+            <ObjectList>
+              <MultilingualTextItem ID="7" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Set visibility of buttons in header popups</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+        </ObjectList>
+      </SW.Blocks.CompileUnit>
+      <SW.Blocks.CompileUnit ID="8" CompositionName="CompileUnits">
+        <AttributeList>
+          <NetworkSource><StructuredText xmlns="http://www.siemens.com/automation/Openness/SW/NetworkSource/StructuredText/v4">
+  <LineComment UId="21">
+    <Text UId="22"> Initialize temp variables</Text>
+  </LineComment>
+  <NewLine UId="23" />
+  <Access Scope="LocalVariable" UId="24">
+    <Symbol UId="25">
+      <Component Name="tempAcknowledgeFromHmi" UId="26" />
+    </Symbol>
+  </Access>
+  <Blank UId="27" />
+  <Token Text=":=" UId="28" />
+  <NewLine UId="29" />
+  <Access Scope="LocalVariable" UId="30">
+    <Symbol UId="31">
+      <Component Name="tempPowerOffFromHmi" UId="32" />
+    </Symbol>
+  </Access>
+  <Blank UId="33" />
+  <Token Text=":=" UId="34" />
+  <NewLine UId="35" />
+  <Access Scope="LocalVariable" UId="36">
+    <Symbol UId="37">
+      <Component Name="tempPowerOnFromHmi" UId="38" />
+    </Symbol>
+  </Access>
+  <Blank UId="39" />
+  <Token Text=":=" UId="40" />
+  <Blank UId="41" />
+  <Access Scope="LiteralConstant" UId="42">
+    <Constant UId="43">
+      <ConstantValue UId="45">FALSE</ConstantValue>
+    </Constant>
+  </Access>
+  <Token Text=";" UId="46" />
+  <NewLine Num="2" UId="47" />
+  <LineComment UId="48">
+    <Text UId="49"> Loop through the HMI panels and summarize the commands</Text>
+  </LineComment>
+  <NewLine UId="50" />
+  <Token Text="FOR" UId="51" />
+  <Blank UId="52" />
+  <Access Scope="LocalVariable" UId="53">
+    <Symbol UId="54">
+      <Component Name="tempIndex" UId="55" />
+    </Symbol>
+  </Access>
+  <Blank UId="56" />
+  <Token Text=":=" UId="57" />
+  <Blank UId="58" />
+  <Access Scope="LiteralConstant" UId="59">
+    <Constant UId="60">
+      <ConstantValue UId="62">0</ConstantValue>
+    </Constant>
+  </Access>
+  <Blank UId="63" />
+  <Token Text="TO" UId="64" />
+  <Blank UId="65" />
+  <Access Scope="GlobalConstant" UId="66">
+    <Constant Name="NO_OF_HMI_PANELS" UId="67" />
+  </Access>
+  <Blank UId="70" />
+  <Token Text="DO" UId="71" />
+  <NewLine UId="72" />
+  <Blank Num="4" UId="73" />
+  <Access Scope="LocalVariable" UId="74">
+    <Symbol UId="75">
+      <Component Name="tempAcknowledgeFromHmi" UId="76" />
+    </Symbol>
+  </Access>
+  <Blank UId="77" />
+  <Token Text=":=" UId="78" />
+  <Blank UId="79" />
+  <Access Scope="LocalVariable" UId="80">
+    <Symbol UId="81">
+      <Component Name="tempAcknowledgeFromHmi" UId="82" />
+    </Symbol>
+  </Access>
+  <Blank UId="83" />
+  <Token Text="OR" UId="84" />
+  <Blank UId="85" />
+  <Access Scope="GlobalVariable" UId="86">
+    <Symbol UId="87">
+      <Component Name="Hmi" UId="88">
+        <BooleanAttribute Name="HasQuotes" UId="89">true</BooleanAttribute>
+      </Component>
+      <Token Text="." UId="90" />
+      <Component Name="mainHeader" UId="91">
+        <Token Text="[" UId="92" />
+        <Access Scope="LocalVariable" UId="93">
+          <Symbol UId="94">
+            <Component Name="tempIndex" UId="95" />
+          </Symbol>
+        </Access>
+        <Token Text="]" UId="96" />
+      </Component>
+      <Token Text="." UId="97" />
+      <Component Name="hmiToPlc" UId="98" />
+      <Token Text="." UId="99" />
+      <Component Name="acknowledge" UId="100" />
+    </Symbol>
+  </Access>
+  <Token Text=";" UId="101" />
+  <NewLine UId="102" />
+  <Blank Num="4" UId="103" />
+  <Access Scope="LocalVariable" UId="104">
+    <Symbol UId="105">
+      <Component Name="tempPowerOffFromHmi" UId="106" />
+    </Symbol>
+  </Access>
+  <Blank UId="107" />
+  <Token Text=":=" UId="108" />
+  <Blank UId="109" />
+  <Access Scope="LocalVariable" UId="110">
+    <Symbol UId="111">
+      <Component Name="tempPowerOffFromHmi" UId="112" />
+    </Symbol>
+  </Access>
+  <Blank UId="113" />
+  <Token Text="OR" UId="114" />
+  <Blank UId="115" />
+  <Access Scope="GlobalVariable" UId="116">
+    <Symbol UId="117">
+      <Component Name="Hmi" UId="118">
+        <BooleanAttribute Name="HasQuotes" UId="119">true</BooleanAttribute>
+      </Component>
+      <Token Text="." UId="120" />
+      <Component Name="mainHeader" UId="121">
+        <Token Text="[" UId="122" />
+        <Access Scope="LocalVariable" UId="123">
+          <Symbol UId="124">
+            <Component Name="tempIndex" UId="125" />
+          </Symbol>
+        </Access>
+        <Token Text="]" UId="126" />
+      </Component>
+      <Token Text="." UId="127" />
+      <Component Name="hmiToPlc" UId="128" />
+      <Token Text="." UId="129" />
+      <Component Name="powerCommands" UId="130" />
+      <Token Text="." UId="131" />
+      <Token Text="%X0" UId="132" />
+    </Symbol>
+  </Access>
+  <Token Text=";" UId="133" />
+  <NewLine UId="134" />
+  <Blank Num="4" UId="135" />
+  <Access Scope="LocalVariable" UId="136">
+    <Symbol UId="137">
+      <Component Name="tempPowerOnFromHmi" UId="138" />
+    </Symbol>
+  </Access>
+  <Blank UId="139" />
+  <Token Text=":=" UId="140" />
+  <Blank UId="141" />
+  <Access Scope="LocalVariable" UId="142">
+    <Symbol UId="143">
+      <Component Name="tempPowerOnFromHmi" UId="144" />
+    </Symbol>
+  </Access>
+  <Blank UId="145" />
+  <Token Text="OR" UId="146" />
+  <Blank UId="147" />
+  <Access Scope="GlobalVariable" UId="148">
+    <Symbol UId="149">
+      <Component Name="Hmi" UId="150">
+        <BooleanAttribute Name="HasQuotes" UId="151">true</BooleanAttribute>
+      </Component>
+      <Token Text="." UId="152" />
+      <Component Name="mainHeader" UId="153">
+        <Token Text="[" UId="154" />
+        <Access Scope="LocalVariable" UId="155">
+          <Symbol UId="156">
+            <Component Name="tempIndex" UId="157" />
+          </Symbol>
+        </Access>
+        <Token Text="]" UId="158" />
+      </Component>
+      <Token Text="." UId="159" />
+      <Component Name="hmiToPlc" UId="160" />
+      <Token Text="." UId="161" />
+      <Component Name="powerCommands" UId="162" />
+      <Token Text="." UId="163" />
+      <Token Text="%X1" UId="164" />
+    </Symbol>
+  </Access>
+  <Token Text=";" UId="165" />
+  <NewLine UId="166" />
+  <Token Text="END_FOR" UId="167" />
+  <Token Text=";" UId="168" />
+</StructuredText></NetworkSource>
+          <ProgrammingLanguage>SCL</ProgrammingLanguage>
+        </AttributeList>
+        <ObjectList>
+          <MultilingualText ID="9" CompositionName="Comment">
+            <ObjectList>
+              <MultilingualTextItem ID="A" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Read commands for acknowledge, powerOn and powerOff from the different HMI panels and summarize them in temp variables for further logic in this block.</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+          <MultilingualText ID="B" CompositionName="Title">
+            <ObjectList>
+              <MultilingualTextItem ID="C" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Summarize HMI commands from different panels</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+        </ObjectList>
+      </SW.Blocks.CompileUnit>
+      <SW.Blocks.CompileUnit ID="D" CompositionName="CompileUnits">
+        <AttributeList>
+          <NetworkSource><FlgNet xmlns="http://www.siemens.com/automation/Openness/SW/NetworkSource/FlgNet/v5">
+  <Parts>
+    <Access Scope="LocalVariable" UId="21">
+      <Symbol>
+        <Component Name="tempAcknowledgeFromHmi" />
+      </Symbol>
+    </Access>
+    <Access Scope="LocalConstant" UId="22">
+      <Constant Name="RESET_BUTTON__COULD_BE_ADDED_HERE" />
+    </Access>
+    <Access Scope="GlobalVariable" UId="23">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="acknowledge" />
+      </Symbol>
+    </Access>
+    <Part Name="Contact" UId="24" />
+    <Part Name="Contact" UId="25" />
+    <Part Name="O" UId="26">
+      <TemplateValue Name="Card" Type="Cardinality">2</TemplateValue>
+    </Part>
+    <Part Name="Coil" UId="27" />
+  </Parts>
+  <Wires>
+    <Wire UId="28">
+      <Powerrail />
+      <NameCon UId="24" Name="in" />
+      <NameCon UId="25" Name="in" />
+    </Wire>
+    <Wire UId="29">
+      <IdentCon UId="21" />
+      <NameCon UId="24" Name="operand" />
+    </Wire>
+    <Wire UId="30">
+      <NameCon UId="24" Name="out" />
+      <NameCon UId="26" Name="in1" />
+    </Wire>
+    <Wire UId="31">
+      <IdentCon UId="22" />
+      <NameCon UId="25" Name="operand" />
+    </Wire>
+    <Wire UId="32">
+      <NameCon UId="25" Name="out" />
+      <NameCon UId="26" Name="in2" />
+    </Wire>
+    <Wire UId="33">
+      <NameCon UId="26" Name="out" />
+      <NameCon UId="27" Name="in" />
+    </Wire>
+    <Wire UId="34">
+      <IdentCon UId="23" />
+      <NameCon UId="27" Name="operand" />
+    </Wire>
+  </Wires>
+</FlgNet></NetworkSource>
+          <ProgrammingLanguage>LAD</ProgrammingLanguage>
+        </AttributeList>
+        <ObjectList>
+          <MultilingualText ID="E" CompositionName="Comment">
+            <ObjectList>
+              <MultilingualTextItem ID="F" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>The global acknowledge command from the hmi button is assigned to Global.Data.general.acknowledge: This bit it forwarded to all underlaying modules
+If a hard-wired global reset button exists, it can </Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+          <MultilingualText ID="10" CompositionName="Title">
+            <ObjectList>
+              <MultilingualTextItem ID="11" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Global Acknowledge</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+        </ObjectList>
+      </SW.Blocks.CompileUnit>
+      <SW.Blocks.CompileUnit ID="12" CompositionName="CompileUnits">
+        <AttributeList>
+          <NetworkSource><FlgNet xmlns="http://www.siemens.com/automation/Openness/SW/NetworkSource/FlgNet/v5">
+  <Parts>
+    <Access Scope="LocalVariable" UId="21">
+      <Symbol>
+        <Component Name="tempPowerOnFromHmi" />
+      </Symbol>
+    </Access>
+    <Access Scope="LocalVariable" UId="22">
+      <Symbol>
+        <Component Name="tempPowerOffFromHmi" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="23">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="enablePower" />
+      </Symbol>
+    </Access>
+    <Access Scope="LocalVariable" UId="24">
+      <Symbol>
+        <Component Name="tempPowerStatus" />
+      </Symbol>
+    </Access>
+    <Call UId="25">
+      <CallInfo Name="LAF_PowerOnOff" BlockType="FB">
+        <Instance Scope="LocalVariable" UId="26">
+          <Component Name="instLAF_PowerOnOff" />
+        </Instance>
+        <Parameter Name="on" Section="Input" Type="Bool" />
+        <Parameter Name="off" Section="Input" Type="Bool" />
+        <Parameter Name="powerStatus" Section="Output" Type="Int" />
+        <Parameter Name="enablePower" Section="InOut" Type="Bool" />
+      </CallInfo>
+    </Call>
+  </Parts>
+  <Wires>
+    <Wire UId="27">
+      <Powerrail />
+      <NameCon UId="25" Name="en" />
+    </Wire>
+    <Wire UId="28">
+      <IdentCon UId="21" />
+      <NameCon UId="25" Name="on" />
+    </Wire>
+    <Wire UId="29">
+      <IdentCon UId="22" />
+      <NameCon UId="25" Name="off" />
+    </Wire>
+    <Wire UId="30">
+      <IdentCon UId="23" />
+      <NameCon UId="25" Name="enablePower" />
+    </Wire>
+    <Wire UId="31">
+      <NameCon UId="25" Name="powerStatus" />
+      <IdentCon UId="24" />
+    </Wire>
+  </Wires>
+</FlgNet></NetworkSource>
+          <ProgrammingLanguage>LAD</ProgrammingLanguage>
+        </AttributeList>
+        <ObjectList>
+          <MultilingualText ID="13" CompositionName="Comment">
+            <ObjectList>
+              <MultilingualTextItem ID="14" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Main switch to enable power. This block sets the bit enablePower. The tag has to be connected to the corresponding actuators that should react accordingly. In this example, power is set to on when starting the CPU.</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+          <MultilingualText ID="15" CompositionName="Title">
+            <ObjectList>
+              <MultilingualTextItem ID="16" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Global Power On/Off</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+        </ObjectList>
+      </SW.Blocks.CompileUnit>
+      <SW.Blocks.CompileUnit ID="17" CompositionName="CompileUnits">
+        <AttributeList>
+          <NetworkSource><StructuredText xmlns="http://www.siemens.com/automation/Openness/SW/NetworkSource/StructuredText/v4">
+  <LineComment UId="21">
+    <Text UId="22"> Loop through the panels and set the power status</Text>
+  </LineComment>
+  <NewLine UId="23" />
+  <Token Text="FOR" UId="24" />
+  <Blank UId="25" />
+  <Access Scope="LocalVariable" UId="26">
+    <Symbol UId="27">
+      <Component Name="tempIndex" UId="28" />
+    </Symbol>
+  </Access>
+  <Blank UId="29" />
+  <Token Text=":=" UId="30" />
+  <Blank UId="31" />
+  <Access Scope="LiteralConstant" UId="32">
+    <Constant UId="33">
+      <ConstantValue UId="35">0</ConstantValue>
+    </Constant>
+  </Access>
+  <Blank UId="36" />
+  <Token Text="TO" UId="37" />
+  <Blank UId="38" />
+  <Access Scope="GlobalConstant" UId="39">
+    <Constant Name="NO_OF_HMI_PANELS" UId="40" />
+  </Access>
+  <Blank UId="43" />
+  <Token Text="DO" UId="44" />
+  <NewLine UId="45" />
+  <Blank Num="4" UId="46" />
+  <Access Scope="GlobalVariable" UId="47">
+    <Symbol UId="48">
+      <Component Name="Hmi" UId="49">
+        <BooleanAttribute Name="HasQuotes" UId="50">true</BooleanAttribute>
+      </Component>
+      <Token Text="." UId="51" />
+      <Component Name="mainHeader" UId="52">
+        <Token Text="[" UId="53" />
+        <Access Scope="LocalVariable" UId="54">
+          <Symbol UId="55">
+            <Component Name="tempIndex" UId="56" />
+          </Symbol>
+        </Access>
+        <Token Text="]" UId="57" />
+      </Component>
+      <Token Text="." UId="58" />
+      <Component Name="plcToHmi" UId="59" />
+      <Token Text="." UId="60" />
+      <Component Name="powerStatus" UId="61" />
+    </Symbol>
+  </Access>
+  <Blank UId="62" />
+  <Token Text=":=" UId="63" />
+  <Blank UId="64" />
+  <Access Scope="LocalVariable" UId="65">
+    <Symbol UId="66">
+      <Component Name="tempPowerStatus" UId="67" />
+    </Symbol>
+  </Access>
+  <Token Text=";" UId="68" />
+  <NewLine UId="69" />
+  <Token Text="END_FOR" UId="70" />
+  <Token Text=";" UId="71" />
+</StructuredText></NetworkSource>
+          <ProgrammingLanguage>SCL</ProgrammingLanguage>
+        </AttributeList>
+        <ObjectList>
+          <MultilingualText ID="18" CompositionName="Comment">
+            <ObjectList>
+              <MultilingualTextItem ID="19" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Write power status back to all connected HMI panels</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+          <MultilingualText ID="1A" CompositionName="Title">
+            <ObjectList>
+              <MultilingualTextItem ID="1B" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Write power status to HMI panels</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+        </ObjectList>
+      </SW.Blocks.CompileUnit>
+      <SW.Blocks.CompileUnit ID="1C" CompositionName="CompileUnits">
+        <AttributeList>
+          <NetworkSource><FlgNet xmlns="http://www.siemens.com/automation/Openness/SW/NetworkSource/FlgNet/v5">
+  <Parts>
+    <Access Scope="GlobalVariable" UId="21">
+      <Symbol>
+        <Component Name="Hmi" />
+        <Component Name="mainHeader" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="22">
+      <Symbol>
+        <Component Name="HmiControlInterface" />
+        <Component Name="unit" />
+      </Symbol>
+    </Access>
+    <Call UId="23">
+      <CallInfo Name="LAF_HmiHeaderSingleUnitManager" BlockType="FB">
+        <Instance Scope="LocalVariable" UId="24">
+          <Component Name="instHmiManager" />
+        </Instance>
+        <Parameter Name="hmiInterface" Section="InOut" Type="Array[*] of &quot;LAF_typeHeader&quot;" />
+        <Parameter Name="unitControlInterface" Section="InOut" Type="&quot;LUC_typeControlInterfaceCompact&quot;" />
+      </CallInfo>
+    </Call>
+  </Parts>
+  <Wires>
+    <Wire UId="25">
+      <Powerrail />
+      <NameCon UId="23" Name="en" />
+    </Wire>
+    <Wire UId="26">
+      <IdentCon UId="21" />
+      <NameCon UId="23" Name="hmiInterface" />
+    </Wire>
+    <Wire UId="27">
+      <IdentCon UId="22" />
+      <NameCon UId="23" Name="unitControlInterface" />
+    </Wire>
+  </Wires>
+</FlgNet></NetworkSource>
+          <ProgrammingLanguage>LAD</ProgrammingLanguage>
+        </AttributeList>
+        <ObjectList>
+          <MultilingualText ID="1D" CompositionName="Comment">
+            <ObjectList>
+              <MultilingualTextItem ID="1E" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Read the input from the control header in the HMI an distribute information to the according units. Vice versa, summarize the unit information and provide it to the control header to display e.g. the modes and states.</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+          <MultilingualText ID="1F" CompositionName="Title">
+            <ObjectList>
+              <MultilingualTextItem ID="20" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>HMI Control Header</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+        </ObjectList>
+      </SW.Blocks.CompileUnit>
+      <SW.Blocks.CompileUnit ID="21" CompositionName="CompileUnits">
+        <AttributeList>
+          <NetworkSource><FlgNet xmlns="http://www.siemens.com/automation/Openness/SW/NetworkSource/FlgNet/v5">
+  <Parts>
+    <Access Scope="LocalVariable" UId="21">
+      <Symbol>
+        <Component Name="tempRetValLocT" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="22">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="localPlcDateAndTime" />
+      </Symbol>
+    </Access>
+    <Access Scope="LocalVariable" UId="23">
+      <Symbol>
+        <Component Name="tempRetValLocT" />
+      </Symbol>
+    </Access>
+    <Access Scope="LocalConstant" UId="24">
+      <Constant Name="DAYLIGHT_SAVING_TIME" />
+    </Access>
+    <Access Scope="GlobalVariable" UId="25">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="dayLightSavingTime" />
+      </Symbol>
+    </Access>
+    <Part Name="RD_LOC_T" Version="1.0" UId="26">
+      <TemplateValue Name="date_type" Type="Type">DTL</TemplateValue>
+    </Part>
+    <Part Name="Eq" UId="27">
+      <TemplateValue Name="SrcType" Type="Type">Int</TemplateValue>
+    </Part>
+    <Part Name="Coil" UId="28" />
+  </Parts>
+  <Wires>
+    <Wire UId="29">
+      <Powerrail />
+      <NameCon UId="26" Name="en" />
+    </Wire>
+    <Wire UId="30">
+      <NameCon UId="26" Name="eno" />
+      <NameCon UId="27" Name="pre" />
+    </Wire>
+    <Wire UId="31">
+      <NameCon UId="26" Name="RET_VAL" />
+      <IdentCon UId="21" />
+    </Wire>
+    <Wire UId="32">
+      <NameCon UId="26" Name="OUT" />
+      <IdentCon UId="22" />
+    </Wire>
+    <Wire UId="33">
+      <IdentCon UId="23" />
+      <NameCon UId="27" Name="in1" />
+    </Wire>
+    <Wire UId="34">
+      <IdentCon UId="24" />
+      <NameCon UId="27" Name="in2" />
+    </Wire>
+    <Wire UId="35">
+      <NameCon UId="27" Name="out" />
+      <NameCon UId="28" Name="in" />
+    </Wire>
+    <Wire UId="36">
+      <IdentCon UId="25" />
+      <NameCon UId="28" Name="operand" />
+    </Wire>
+  </Wires>
+</FlgNet></NetworkSource>
+          <ProgrammingLanguage>LAD</ProgrammingLanguage>
+        </AttributeList>
+        <ObjectList>
+          <MultilingualText ID="22" CompositionName="Comment">
+            <ObjectList>
+              <MultilingualTextItem ID="23" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Read local date and time of the PLC</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+          <MultilingualText ID="24" CompositionName="Title">
+            <ObjectList>
+              <MultilingualTextItem ID="25" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Read local PLC date and time</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+        </ObjectList>
+      </SW.Blocks.CompileUnit>
+      <SW.Blocks.CompileUnit ID="26" CompositionName="CompileUnits">
+        <AttributeList>
+          <NetworkSource><FlgNet xmlns="http://www.siemens.com/automation/Openness/SW/NetworkSource/FlgNet/v5">
+  <Parts>
+    <Access Scope="GlobalVariable" UId="21">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="clock" />
+        <Component Name="cycle100Msec" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="22">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="clock" />
+        <Component Name="cycle200Msec" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="23">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="clock" />
+        <Component Name="cycle400Msec" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="24">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="clock" />
+        <Component Name="cycle500Msec" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="25">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="clock" />
+        <Component Name="cycle800Msec" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="26">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="clock" />
+        <Component Name="cycle1000Msec" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="27">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="clock" />
+        <Component Name="cycle1600Msec" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="28">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="clock" />
+        <Component Name="cycle2000Msec" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="29">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="clock" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="30">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="clockMemoryByte" />
+      </Symbol>
+    </Access>
+    <Call UId="31">
+      <CallInfo Name="LAF_ClockGenerator" BlockType="FB">
+        <Instance Scope="LocalVariable" UId="32">
+          <Component Name="instLAF_ClockGen" />
+        </Instance>
+        <Parameter Name="clk10Hz" Section="Output" Type="Bool" />
+        <Parameter Name="clk5Hz" Section="Output" Type="Bool" />
+        <Parameter Name="clk2Hz5" Section="Output" Type="Bool" />
+        <Parameter Name="clk2Hz" Section="Output" Type="Bool" />
+        <Parameter Name="clk1Hz25" Section="Output" Type="Bool" />
+        <Parameter Name="clk1Hz" Section="Output" Type="Bool" />
+        <Parameter Name="clk0Hz625" Section="Output" Type="Bool" />
+        <Parameter Name="clk0Hz5" Section="Output" Type="Bool" />
+      </CallInfo>
+    </Call>
+    <Part Name="GATHER" Version="1.2" UId="33" DisabledENO="true">
+      <TemplateValue Name="dest_type" Type="Type">Byte</TemplateValue>
+      <TemplateValue Name="src_type" Type="Type">Bool</TemplateValue>
+    </Part>
+  </Parts>
+  <Wires>
+    <Wire UId="34">
+      <Powerrail />
+      <NameCon UId="31" Name="en" />
+      <NameCon UId="33" Name="en" />
+    </Wire>
+    <Wire UId="35">
+      <NameCon UId="31" Name="clk10Hz" />
+      <IdentCon UId="21" />
+    </Wire>
+    <Wire UId="36">
+      <NameCon UId="31" Name="clk5Hz" />
+      <IdentCon UId="22" />
+    </Wire>
+    <Wire UId="37">
+      <NameCon UId="31" Name="clk2Hz5" />
+      <IdentCon UId="23" />
+    </Wire>
+    <Wire UId="38">
+      <NameCon UId="31" Name="clk2Hz" />
+      <IdentCon UId="24" />
+    </Wire>
+    <Wire UId="39">
+      <NameCon UId="31" Name="clk1Hz25" />
+      <IdentCon UId="25" />
+    </Wire>
+    <Wire UId="40">
+      <NameCon UId="31" Name="clk1Hz" />
+      <IdentCon UId="26" />
+    </Wire>
+    <Wire UId="41">
+      <NameCon UId="31" Name="clk0Hz625" />
+      <IdentCon UId="27" />
+    </Wire>
+    <Wire UId="42">
+      <NameCon UId="31" Name="clk0Hz5" />
+      <IdentCon UId="28" />
+    </Wire>
+    <Wire UId="43">
+      <IdentCon UId="29" />
+      <NameCon UId="33" Name="IN" />
+    </Wire>
+    <Wire UId="44">
+      <NameCon UId="33" Name="OUT" />
+      <IdentCon UId="30" />
+    </Wire>
+  </Wires>
+</FlgNet></NetworkSource>
+          <ProgrammingLanguage>LAD</ProgrammingLanguage>
+        </AttributeList>
+        <ObjectList>
+          <MultilingualText ID="27" CompositionName="Comment">
+            <ObjectList>
+              <MultilingualTextItem ID="28" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>The clock bits are generated instead of the HW clock memory byte of the PLC. Due to the use of software units, the ussage of system and clock memory bytes isn't possible.</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+          <MultilingualText ID="29" CompositionName="Title">
+            <ObjectList>
+              <MultilingualTextItem ID="2A" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Create clock bits</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+        </ObjectList>
+      </SW.Blocks.CompileUnit>
+      <SW.Blocks.CompileUnit ID="2B" CompositionName="CompileUnits">
+        <AttributeList>
+          <NetworkSource><FlgNet xmlns="http://www.siemens.com/automation/Openness/SW/NetworkSource/FlgNet/v5">
+  <Parts>
+    <Access Scope="GlobalVariable" UId="21">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="clockMemoryByte" />
+      </Symbol>
+    </Access>
+    <Access Scope="LocalVariable" UId="22">
+      <Symbol>
+        <Component Name="statClockByteOld" />
+      </Symbol>
+    </Access>
+    <Access Scope="LocalVariable" UId="23">
+      <Symbol>
+        <Component Name="tempResultXor" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="24">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="clockMemoryByte" />
+      </Symbol>
+    </Access>
+    <Access Scope="LocalVariable" UId="25">
+      <Symbol>
+        <Component Name="statClockByteOld" />
+      </Symbol>
+    </Access>
+    <Access Scope="LocalVariable" UId="26">
+      <Symbol>
+        <Component Name="tempResultXor" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="27">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="clockMemoryByte" />
+      </Symbol>
+    </Access>
+    <Access Scope="LocalVariable" UId="28">
+      <Symbol>
+        <Component Name="tempPosPulse" />
+      </Symbol>
+    </Access>
+    <Access Scope="LocalVariable" UId="29">
+      <Symbol>
+        <Component Name="tempPosPulse" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="30">
+      <Symbol>
+        <Component Name="Data" />
+        <Component Name="general" />
+        <Component Name="posPulse" />
+      </Symbol>
+    </Access>
+    <Part Name="Xor" UId="31" DisabledENO="true">
+      <TemplateValue Name="Card" Type="Cardinality">2</TemplateValue>
+      <TemplateValue Name="SrcType" Type="Type">Byte</TemplateValue>
+    </Part>
+    <Part Name="Move" UId="32" DisabledENO="true">
+      <TemplateValue Name="Card" Type="Cardinality">1</TemplateValue>
+    </Part>
+    <Part Name="And" UId="33" DisabledENO="true">
+      <TemplateValue Name="Card" Type="Cardinality">2</TemplateValue>
+      <TemplateValue Name="SrcType" Type="Type">Byte</TemplateValue>
+    </Part>
+    <Part Name="SCATTER" Version="1.2" UId="34" DisabledENO="true">
+      <TemplateValue Name="dest_type" Type="Type">Bool</TemplateValue>
+      <TemplateValue Name="src_type" Type="Type">Byte</TemplateValue>
+    </Part>
+  </Parts>
+  <Wires>
+    <Wire UId="35">
+      <Powerrail />
+      <NameCon UId="31" Name="en" />
+      <NameCon UId="33" Name="en" />
+    </Wire>
+    <Wire UId="36">
+      <IdentCon UId="21" />
+      <NameCon UId="31" Name="in1" />
+    </Wire>
+    <Wire UId="37">
+      <IdentCon UId="22" />
+      <NameCon UId="31" Name="in2" />
+    </Wire>
+    <Wire UId="38">
+      <NameCon UId="31" Name="eno" />
+      <NameCon UId="32" Name="en" />
+    </Wire>
+    <Wire UId="39">
+      <NameCon UId="31" Name="out" />
+      <IdentCon UId="23" />
+    </Wire>
+    <Wire UId="40">
+      <IdentCon UId="24" />
+      <NameCon UId="32" Name="in" />
+    </Wire>
+    <Wire UId="41">
+      <NameCon UId="32" Name="out1" />
+      <IdentCon UId="25" />
+    </Wire>
+    <Wire UId="42">
+      <IdentCon UId="26" />
+      <NameCon UId="33" Name="in1" />
+    </Wire>
+    <Wire UId="43">
+      <IdentCon UId="27" />
+      <NameCon UId="33" Name="in2" />
+    </Wire>
+    <Wire UId="44">
+      <NameCon UId="33" Name="eno" />
+      <NameCon UId="34" Name="en" />
+    </Wire>
+    <Wire UId="45">
+      <NameCon UId="33" Name="out" />
+      <IdentCon UId="28" />
+    </Wire>
+    <Wire UId="46">
+      <IdentCon UId="29" />
+      <NameCon UId="34" Name="IN" />
+    </Wire>
+    <Wire UId="47">
+      <NameCon UId="34" Name="OUT" />
+      <IdentCon UId="30" />
+    </Wire>
+  </Wires>
+</FlgNet></NetworkSource>
+          <ProgrammingLanguage>LAD</ProgrammingLanguage>
+        </AttributeList>
+        <ObjectList>
+          <MultilingualText ID="2C" CompositionName="Comment">
+            <ObjectList>
+              <MultilingualTextItem ID="2D" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Evaluate the rising edge of the clock memory byte and assign it to the InOut parameter</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+          <MultilingualText ID="2E" CompositionName="Title">
+            <ObjectList>
+              <MultilingualTextItem ID="2F" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Create clock bit edges</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+        </ObjectList>
+      </SW.Blocks.CompileUnit>
+      <SW.Blocks.CompileUnit ID="30" CompositionName="CompileUnits">
+        <AttributeList>
+          <NetworkSource><FlgNet xmlns="http://www.siemens.com/automation/Openness/SW/NetworkSource/FlgNet/v5">
+  <Parts>
+    <Access Scope="LiteralConstant" UId="21">
+      <Constant>
+        <ConstantType>Bool</ConstantType>
+        <ConstantValue>TRUE</ConstantValue>
+      </Constant>
+    </Access>
+    <Access Scope="GlobalConstant" UId="22">
+      <Constant Name="Local~PROFINET_interface_1" />
+    </Access>
+    <Access Scope="LiteralConstant" UId="23">
+      <Constant>
+        <ConstantType>CONN_OUC</ConstantType>
+        <ConstantValue>123</ConstantValue>
+      </Constant>
+    </Access>
+    <Access Scope="LiteralConstant" UId="24">
+      <Constant>
+        <ConstantType>USInt</ConstantType>
+        <ConstantValue>1</ConstantValue>
+      </Constant>
+    </Access>
+    <Call UId="25">
+      <CallInfo Name="LSNTP_Server" BlockType="FB">
+        <Instance Scope="LocalVariable" UId="26">
+          <Component Name="instLSNTP_Server" />
+        </Instance>
+        <Parameter Name="enable" Section="Input" Type="Bool" />
+        <Parameter Name="hwID" Section="Input" Type="HW_ANY" />
+        <Parameter Name="connID" Section="Input" Type="CONN_OUC" />
+        <Parameter Name="referenceID" Section="Input" Type="USInt" />
+        <Parameter Name="lastTimeSet" Section="Input" Type="DTL" />
+        <Parameter Name="valid" Section="Output" Type="Bool" />
+        <Parameter Name="busy" Section="Output" Type="Bool" />
+        <Parameter Name="error" Section="Output" Type="Bool" />
+        <Parameter Name="status" Section="Output" Type="Word" />
+        <Parameter Name="diagnostics" Section="Output" Type="&quot;LSNTP_typeDiagnostics&quot;" />
+      </CallInfo>
+    </Call>
+  </Parts>
+  <Wires>
+    <Wire UId="33">
+      <Powerrail />
+      <NameCon UId="25" Name="en" />
+    </Wire>
+    <Wire UId="34">
+      <IdentCon UId="21" />
+      <NameCon UId="25" Name="enable" />
+    </Wire>
+    <Wire UId="35">
+      <IdentCon UId="22" />
+      <NameCon UId="25" Name="hwID" />
+    </Wire>
+    <Wire UId="36">
+      <IdentCon UId="23" />
+      <NameCon UId="25" Name="connID" />
+    </Wire>
+    <Wire UId="37">
+      <IdentCon UId="24" />
+      <NameCon UId="25" Name="referenceID" />
+    </Wire>
+    <Wire UId="38">
+      <OpenCon UId="27" />
+      <NameCon UId="25" Name="lastTimeSet" />
+    </Wire>
+    <Wire UId="39">
+      <NameCon UId="25" Name="valid" />
+      <OpenCon UId="28" />
+    </Wire>
+    <Wire UId="40">
+      <NameCon UId="25" Name="busy" />
+      <OpenCon UId="29" />
+    </Wire>
+    <Wire UId="41">
+      <NameCon UId="25" Name="error" />
+      <OpenCon UId="30" />
+    </Wire>
+    <Wire UId="42">
+      <NameCon UId="25" Name="status" />
+      <OpenCon UId="31" />
+    </Wire>
+    <Wire UId="43">
+      <NameCon UId="25" Name="diagnostics" />
+      <OpenCon UId="32" />
+    </Wire>
+  </Wires>
+</FlgNet></NetworkSource>
+          <ProgrammingLanguage>LAD</ProgrammingLanguage>
+        </AttributeList>
+        <ObjectList>
+          <MultilingualText ID="31" CompositionName="Comment">
+            <ObjectList>
+              <MultilingualTextItem ID="32" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>With the LSNTP_Server block, the NTP server will be enabled on S7 PLC, to wich the NTP client (e.g. Panel), can synchronize their data and time.</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+          <MultilingualText ID="33" CompositionName="Title">
+            <ObjectList>
+              <MultilingualTextItem ID="34" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Time Synchronisation (NTP)</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+        </ObjectList>
+      </SW.Blocks.CompileUnit>
+      <MultilingualText ID="35" CompositionName="Title">
+        <ObjectList>
+          <MultilingualTextItem ID="36" CompositionName="Items">
+            <AttributeList>
+              <Culture>en-US</Culture>
+              <Text>CallGeneral</Text>
+            </AttributeList>
+          </MultilingualTextItem>
+        </ObjectList>
+      </MultilingualText>
+    </ObjectList>
+  </SW.Blocks.FB>
+</Document>
