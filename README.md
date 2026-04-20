@@ -14,7 +14,8 @@ The [Pi Coding Agent](https://shittycodingagent.ai/) is an advanced AI-powered d
 - **Self-Correct**: It observes the results of its actions and iterates until the task is complete.
 - **YOLO Mode**: By default, the agent operates with a "get things done" philosophy, executing complex workflows with speed and autonomy.
 
-We have extended this philosophy to TIA Portal, creating a seamless link between high-level AI reasoning and low-level industrial engineering.
+We have extended this philosophy to TIA Portal, creating a seamless link between high-level AI reasoning and low-level industrial engineering. 
+check out : https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent
 
 ---
 
