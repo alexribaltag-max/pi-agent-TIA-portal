@@ -26,15 +26,30 @@ When you need to interact with TIA Portal, use the `tiabridge` custom tool. It e
 ## Main References
 - `../../../TiaLocalBridge/README.md` (Read this to understand what commands the bridge supports and their exact syntax).
 - `../../../TiaLocalBridge/scripts/` (Check this folder for example PowerShell workflows, bridge command sequences, research probes, and test patterns that show how the bridge and Openness APIs were exercised during development).
+- `references/programming-guidelines.md` (Default engineering rules. Read this for nearly every TIA task, especially if the task may change logic, blocks, tags, or structure.)
+- `references/tag-naming-guidelines.md` (Read this when working with PLC tags, HMI tags, DB members, naming reviews, or naming proposals.)
+- `references/hardware-address-guidelines.md` (Read this when working with devices, module layout, plug locations, addresses, networks, subnets, or drive telegram addressing.)
+
+## Context-loading rules
+
+Load extra context documents based on task type:
+
+1. **Always read `references/programming-guidelines.md`** for TIA engineering tasks unless the task is only a trivial readonly capability question.
+2. **Also read `references/tag-naming-guidelines.md`** for PLC tag, HMI tag, tag table, interface naming, or signal naming tasks.
+3. **Also read `references/hardware-address-guidelines.md`** for hardware, modules, IO addresses, network interfaces, subnets, PROFINET, or drive telegram tasks.
+4. If a task spans multiple areas, read all relevant context files before taking action.
+5. Treat these documents as project policy. Follow them unless the user explicitly overrides them.
+6. If the documents are still templates or incomplete, say so and proceed conservatively.
 
 ## Working Rules
 
 1. **Use the `tiabridge` tool** instead of directly interacting with TIA Portal files.
 2. **Read the project README first** if you are unsure of the command syntax.
-3. **Check `TiaLocalBridge/scripts/` for examples** when the task resembles an existing workflow such as tag import, readonly discovery, block export/import testing, hardware setup, or process/Openness diagnostics.
-4. **Prefer the example project `PackagingMachine`** for tests unless instructed otherwise.
-5. **Warn that imported blocks may require compile/update afterward.**
-6. **Use explicit device references from `GETDEVICES`** when working with device-specific commands.
+3. **Load the task-relevant context references first** using the rules above.
+4. **Check `TiaLocalBridge/scripts/` for examples** when the task resembles an existing workflow such as tag import, readonly discovery, block export/import testing, hardware setup, or process/Openness diagnostics.
+5. **Prefer the example project `PackagingMachine`** for tests unless instructed otherwise.
+6. **Warn that imported blocks may require compile/update afterward.**
+7. **Use explicit device references from `GETDEVICES`** when working with device-specific commands.
 
 ## Current bridge capabilities
 

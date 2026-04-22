@@ -8,6 +8,7 @@ Operational rules for this repository:
 - Use the custom `tiabridge` tool (registered via `.pi/extensions/tiabridge.ts`) to automate TIA Portal. 
 - Read `TiaLocalBridge/README.md` to understand available bridge commands and correct parameter formatting.
 - Follow the `tia-portal-agent` skill workflows for discovery, export, import, and testing.
+- Load the task-specific context documents referenced by the `tia-portal-agent` skill (programming guidelines by default, plus tag naming and hardware/address guidance when relevant).
 - Prefer the example project "PackagingMachine" for mutating tests unless the user explicitly asks to use a different project.
 - Use device references returned by `GETDEVICES` for downstream commands.
 - If a PLC block import succeeds, warn that the imported block may still require compile/update actions in TIA Portal.
