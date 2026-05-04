@@ -1,5 +1,8 @@
 # Pi TIA Agent: a Pi Agent extension
 
+<img width="800" height="450" alt="gigh_submodule-ezgif com-optimize" src="https://github.com/user-attachments/assets/57b1f4b9-fb1e-4349-be7f-0e96cc29de04" />
+
+
 **The ultimate bridge between AI and industrial automation.**
 
 This project transforms your TIA Portal engineering experience by extending the **Pi Coding Agent** into the world of Siemens automation. It allows an AI agent to "see," "interact," and "modify" your TIA Portal projects, PLC code, HMI screens, and hardware configurations in real time using the Siemens TIA Portal Openness API.
