@@ -43,6 +43,9 @@ Check it out: https://github.com/badlogic/pi-mono/tree/main/packages/coding-agen
 - **⚡ Smart Import/Export**: Intelligent handling of block formats (XML vs. Document) based on language and protection status.
 - **🧪 Testing & Validation**: Create disposable test blocks, compile them, and verify logic without manual clicks.
 
+<img width="800" height="450" alt="hihghmi-ezgif com-optimize" src="https://github.com/user-attachments/assets/31582776-afda-4c33-8ffd-dd5a9160a002" />
+
+
 ---
 
 ## 🧠 Agent Intelligence (.pi folder)
