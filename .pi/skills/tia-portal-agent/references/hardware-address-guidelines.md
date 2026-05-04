@@ -65,7 +65,8 @@ Preferred grouping order where a new station is being built and no project stand
 ## IO addressing standards
 
 ## General rules
-
+- For ip adresses we use 10.178.0.x where PLC's start at 10.178.0.2 to 10, we reserve form 70 to 90 for external TIA devices , drives start at 100 to 200 other devices from 200 to 250
+- IO adresses : main PLC starts at 0 only digital inouts except for safety DI DO wich start at 50  , analog , counters or technoological objects form 500 to 999, drives telegrams start at 1000 to 2000 , safety telegram drives start at 2000 .
 - Keep addresses contiguous within a station where practical.
 - Prefer alignment that makes maintenance easier.
 - Avoid reusing old free spaces inside a station if it creates fragmented addressing unless the project already relies on dense packing.
@@ -136,7 +137,6 @@ For drives, always inspect before mutating:
 ### Telegram rules
 
 - Do not change telegram number and IO addresses in one blind step without reading current values first.
-- Preserve the current telegram strategy if it is already valid.
 - Keep input and output telegram addresses coordinated.
 - Do not create overlaps with standard IO or other telegram areas.
 - If the drive has multiple drive objects, confirm which object number is being changed.
