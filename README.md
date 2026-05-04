@@ -6,6 +6,13 @@ This project transforms your TIA Portal engineering experience by extending the 
 
 ![Pi TIA Agent overview](images/image.png)
 
+## 🎥 Demo Videos
+
+See the repo in action:
+
+- [Repository walkthrough and usage demo](https://youtu.be/bEAtLDp9gfo?si=p9nHuzOftbYUNBI6)
+- [TIA Portal agent usage demonstration](https://youtu.be/8Cj0zDgfZiM?si=ZTuvSMCU1jwlry5o)
+
 ---
 
 ## 🤖 What is the Pi Coding Agent?
