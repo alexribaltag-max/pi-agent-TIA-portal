@@ -1,9 +1,12 @@
-# Pi TIA Agent: a Pi Agent extension
+# Pi TIA Agent: a pi extension for TIA Portal
 
 <img width="800" height="450" alt="gigh_submodule-ezgif com-optimize" src="https://github.com/user-attachments/assets/57b1f4b9-fb1e-4349-be7f-0e96cc29de04" />
 
 
 **The ultimate bridge between AI and industrial automation.**
+
+> Compatibility update: this repository is now aligned with the current pi package ownership and APIs.
+> Verified with `@earendil-works/pi-coding-agent` **v0.74.0**.
 
 This project transforms your TIA Portal engineering experience by extending the **Pi Coding Agent** into the world of Siemens automation. It allows an AI agent to "see," "interact," and "modify" your TIA Portal projects, PLC code, HMI screens, and hardware configurations in real time using the Siemens TIA Portal Openness API.
 
@@ -18,9 +21,9 @@ See the repo in action:
 
 ---
 
-## 🤖 What is the Pi Coding Agent?
+## 🤖 What is the pi coding agent?
 
-The [Pi Coding Agent](https://shittycodingagent.ai/) is an advanced AI-powered developer harness designed to operate directly within your workspace. Unlike static chat interfaces, Pi can:
+The [pi coding agent](https://pi.dev) is an AI-powered terminal coding harness designed to operate directly within your workspace. Unlike static chat interfaces, pi can:
 
 - **Read and Write Files**: It understands your entire codebase context.
 - **Execute Commands**: It runs builds, scripts, and automation tools.
@@ -30,7 +33,7 @@ The [Pi Coding Agent](https://shittycodingagent.ai/) is an advanced AI-powered d
 Pi can be extended with other useful skills and extensions for related tasks. Check: https://pi.dev/packages
 
 We have extended this philosophy to TIA Portal, creating a seamless link between high-level AI reasoning and low-level industrial engineering.
-Check it out: https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent
+Check it out: https://github.com/earendil-works/pi-mono/tree/main/packages/coding-agent
 
 ---
 
@@ -50,7 +53,7 @@ Check it out: https://github.com/badlogic/pi-mono/tree/main/packages/coding-agen
 
 ## 🧠 Agent Intelligence (.pi folder)
 
-This repository is "agent-ready" out of the box. The `.pi` folder contains the configuration that turns a standard Pi Coding Agent into a TIA Portal expert.
+This repository is "agent-ready" out of the box. The `.pi` folder contains the configuration that turns a standard pi coding agent into a TIA Portal expert.
 
 Drop the `.pi` folder into your working project and run `pi`.
 
@@ -58,7 +61,7 @@ Drop the `.pi` folder into your working project and run `pi`.
 - **Skills (`.pi/skills`)**: The `tia-portal-agent` skill provides the agent with structured workflows for discovery, export, import, and testing. It also loads task-specific project context such as programming guidelines, tag naming rules, and hardware/address policies.
 - **Prompts (`.pi/prompts`)**: Specialized prompt files (for example `tia-plc-blocks.md`) that teach the agent how to interpret TIA Openness XML and document formats, as well as how to handle device references.
 
-When you start the Pi Coding Agent in this directory, it automatically loads these capabilities, making it aware of your TIA environment without any additional setup.
+When you start pi in this directory, it automatically loads these capabilities, making it aware of your TIA environment without any additional setup.
 
 ### Customize Engineering Standards
 
@@ -190,6 +193,17 @@ A native TIA Portal add-in that provides a direct "hotline" from the engineering
 
 ## 🚀 Getting Started
 
+### pi compatibility
+
+This repo is currently aligned with the modern pi package layout and ownership change:
+
+- package: `@earendil-works/pi-coding-agent`
+- verified version: `0.74.0`
+- extension schema package: `typebox`
+- legacy import paths such as `@mariozechner/pi-coding-agent` have been updated
+
+If you update pi again later, reload the extension with `/reload` after pulling the latest repo changes.
+
 ### Model support
 
 TIA Agent has been tested with frontier models such as OpenAI 5.4 and Gemini 5.1 Pro, and it should also work with other top-tier models.
@@ -199,17 +213,17 @@ TIA Agent has been tested with frontier models such as OpenAI 5.4 and Gemini 5.1
 - **TIA Portal V20** (currently tested version)
 - **Siemens Openness** installed and configured
 - **.NET Framework 4.8** (for the bridge and add-in)
-- **Pi Coding Agent** installed
+- **pi coding agent** installed (`@earendil-works/pi-coding-agent`)
 - `npm`
 - **Python** for the agent to use for various tasks like document manipulation
 
-NOTE: Install Pi Coding Agent, clone the repo, and ask it to guide you during installation.
+NOTE: Install pi, clone the repo, and ask it to guide you during installation.
 
 ### Installation
 
 1. **Build the Bridge**: Compile the `TiaLocalBridge` solution.
 2. **Install the Add-in**: Copy the `.addin` file from `TiaPiAddin/bin/Debug/net48/` to your TIA Portal `AddIns` folder and activate it.
-3. **Start the Agent**: Run the Pi Coding Agent in your workspace. It will automatically detect the extension and wait for commands or Add-in triggers.
+3. **Start the Agent**: Run pi in your workspace. It will automatically detect the extension and wait for commands or Add-in triggers.
 
 ### TIA Openness Configuration
 
@@ -250,5 +264,5 @@ To allow the bridge to interact with TIA Portal, you must ensure Openness is con
 
 ## 🙌 Credits
 
-Built for the **Awesome Pi Coding Agent**. Elevate your automation engineering to the next level.
-https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent
+Built for the **pi coding agent**. Elevate your automation engineering to the next level.
+https://github.com/earendil-works/pi-mono/tree/main/packages/coding-agent

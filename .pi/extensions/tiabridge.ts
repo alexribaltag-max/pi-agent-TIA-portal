@@ -5,14 +5,14 @@ import * as os from "node:os";
 import * as crypto from "node:crypto";
 import * as readline from "node:readline";
 import * as http from "node:http";
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import { Type } from "@sinclair/typebox";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { Type } from "typebox";
 import {
   truncateHead,
   formatSize,
   DEFAULT_MAX_BYTES,
   DEFAULT_MAX_LINES,
-} from "@mariozechner/pi-coding-agent";
+} from "@earendil-works/pi-coding-agent";
 
 export default function (pi: ExtensionAPI) {
   let bridgeProcess: ChildProcess | null = null;
@@ -79,9 +79,14 @@ export default function (pi: ExtensionAPI) {
     return JSON.stringify(result, null, 2);
   }
 
-  function appendBridgeMessage(ctx: any, title: string, result: any) {
+  function appendBridgeMessage(_ctx: any, title: string, result: any) {
     const text = `${title}\n\n${formatBridgeResult(result)}`;
-    ctx.sessionManager.appendCustomMessageEntry("tiabridge", text, true, { title, result });
+    pi.sendMessage({
+      customType: "tiabridge",
+      content: text,
+      display: true,
+      details: { title, result },
+    });
   }
 
   async function ensureProcess(ctx: any): Promise<void> {
@@ -379,7 +384,7 @@ export default function (pi: ExtensionAPI) {
         await ensureProcess(ctx);
         const result = await sendCommand("LIST", ctx);
         appendBridgeMessage(ctx, "TIA Portal status", result);
-        ctx.ui.notify("TIA Portal Bridge is running and status was refreshed.", "success");
+        ctx.ui.notify("TIA Portal Bridge is running and status was refreshed.", "info");
       } catch (err: any) {
         ctx.ui.notify(`Failed to start bridge: ${err.message}`, "error");
       }
@@ -392,7 +397,7 @@ export default function (pi: ExtensionAPI) {
       try {
         const result = await sendCommand("LIST", ctx);
         appendBridgeMessage(ctx, "TIA Portal status", result);
-        ctx.ui.notify("TIA Portal status fetched.", "success");
+        ctx.ui.notify("TIA Portal status fetched.", "info");
       } catch (err: any) {
         ctx.ui.notify(`Failed to fetch TIA status: ${err.message}`, "error");
       }
@@ -411,7 +416,7 @@ export default function (pi: ExtensionAPI) {
       try {
         const result = await sendCommand(`OPEN|${projectPath}`, ctx);
         appendBridgeMessage(ctx, `TIA open project: ${projectPath}`, result);
-        ctx.ui.notify("TIA project open command sent.", "success");
+        ctx.ui.notify("TIA project open command sent.", "info");
       } catch (err: any) {
         ctx.ui.notify(`Failed to open TIA project: ${err.message}`, "error");
       }
@@ -430,7 +435,7 @@ export default function (pi: ExtensionAPI) {
       try {
         const result = await sendCommand(command, ctx);
         appendBridgeMessage(ctx, `TIA command: ${command}`, result);
-        ctx.ui.notify("TIA bridge command executed.", "success");
+        ctx.ui.notify("TIA bridge command executed.", "info");
       } catch (err: any) {
         ctx.ui.notify(`TIA bridge command failed: ${err.message}`, "error");
       }
