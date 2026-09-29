@@ -1,5 +1,8 @@
+using System;
+using System.Globalization;
 using System.Linq;
 using Siemens.Engineering;
+using Siemens.Engineering.HW;
 
 namespace TiaLocalBridge.Commands
 {
@@ -17,8 +20,29 @@ namespace TiaLocalBridge.Commands
             var providedArgs = CommandSupport.RequireExactArguments(args, this, "<device-reference>", "<target-reference>");
             var deviceResolution = CommandSupport.ResolveDeviceByReference(portal, providedArgs[0]);
             var targetResolution = CommandSupport.ResolveHardwareObject(deviceResolution.Device, providedArgs[1]);
-            var plugLocations = CommandSupport.GetPlugLocations(targetResolution.TargetObject);
-            var occupiedPositions = CommandSupport.GetDirectChildDeviceItems(targetResolution.TargetObject)
+            var plugLocationsTarget = targetResolution.TargetObject;
+            var targetReference = targetResolution.TargetReference;
+            var targetKind = targetResolution.TargetKind;
+
+            // For rack-based stations, device-level plug locations describe rack slots, but
+            // occupancy is represented by children of the rack DeviceItem rather than Device.Items.
+            if (plugLocationsTarget is Device device)
+            {
+                var rootRacks = CommandSupport.GetDirectChildDeviceItems(device)
+                    .Where(item => item.TypeIdentifier != null
+                        && item.TypeIdentifier.ToString().StartsWith("System:Rack", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                if (rootRacks.Count == 1)
+                {
+                    var rack = rootRacks[0];
+                    plugLocationsTarget = rack;
+                    targetReference = rack.PositionNumber.ToString(CultureInfo.InvariantCulture);
+                    targetKind = "Rack DeviceItem";
+                }
+            }
+
+            var plugLocations = CommandSupport.GetPlugLocations(plugLocationsTarget);
+            var occupiedPositions = CommandSupport.GetDirectChildDeviceItems(plugLocationsTarget)
                 .GroupBy(item => item.PositionNumber)
                 .ToDictionary(group => group.Key, group => group.First().Name);
 
@@ -33,8 +57,8 @@ namespace TiaLocalBridge.Commands
                 .ToList();
 
             return summaries.Any()
-                ? $"Plug locations for {targetResolution.TargetKind} '{targetResolution.TargetReference}' on device '{CommandSupport.GetDeviceReference(deviceResolution.Project, deviceResolution.Device)}': {string.Join(" || ", summaries)}"
-                : $"No plug locations were exposed for {targetResolution.TargetKind} '{targetResolution.TargetReference}' on device '{CommandSupport.GetDeviceReference(deviceResolution.Project, deviceResolution.Device)}'.";
+                ? $"Plug locations for {targetKind} '{targetReference}' on device '{CommandSupport.GetDeviceReference(deviceResolution.Project, deviceResolution.Device)}': {string.Join(" || ", summaries)}"
+                : $"No plug locations were exposed for {targetKind} '{targetReference}' on device '{CommandSupport.GetDeviceReference(deviceResolution.Project, deviceResolution.Device)}'.";
         }
     }
 }

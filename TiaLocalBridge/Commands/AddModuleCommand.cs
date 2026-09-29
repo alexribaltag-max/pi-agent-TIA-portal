@@ -38,7 +38,10 @@ namespace TiaLocalBridge.Commands
             }
 
             var createdResolution = CommandSupport.GetAllDeviceItemResolutions(deviceResolution.Device)
-                .FirstOrDefault(candidate => object.ReferenceEquals(candidate.Item, createdModule));
+                .FirstOrDefault(candidate => object.ReferenceEquals(candidate.Item, createdModule)
+                    || (candidate.ParentReference.Equals(parentResolution.TargetReference, StringComparison.OrdinalIgnoreCase)
+                        && candidate.Item.PositionNumber == createdModule.PositionNumber
+                        && string.Equals(candidate.Item.Name, createdModule.Name, StringComparison.OrdinalIgnoreCase)));
             var createdReference = createdResolution != null ? createdResolution.ItemReference : $"<position-{createdModule.PositionNumber}>";
 
             return $"Added module '{createdModule.Name}' to device '{CommandSupport.GetDeviceReference(deviceResolution.Project, deviceResolution.Device)}' [Reference={createdReference}, Parent={parentResolution.TargetReference}, Type={createdModule.TypeIdentifier}, Position={createdModule.PositionNumber}, Plugged={(createdModule.IsPlugged ? "true" : "false")}].";

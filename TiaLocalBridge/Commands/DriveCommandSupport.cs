@@ -16,6 +16,27 @@ namespace TiaLocalBridge.Commands
 
     internal static class DriveCommandSupport
     {
+        public static bool TryGetDriveObjectNumber(DriveObject driveObject, out int driveObjectNumber)
+        {
+            try
+            {
+                driveObjectNumber = driveObject.DriveObjectNumber;
+                return true;
+            }
+            catch
+            {
+                driveObjectNumber = -1;
+                return false;
+            }
+        }
+
+        public static string FormatDriveObjectNumber(DriveObject driveObject)
+        {
+            return TryGetDriveObjectNumber(driveObject, out int driveObjectNumber)
+                ? driveObjectNumber.ToString()
+                : "<unavailable>";
+        }
+
         public static List<DriveObjectResolution> GetAllDriveObjectResolutions(Device device)
         {
             var result = new List<DriveObjectResolution>();
@@ -74,7 +95,7 @@ namespace TiaLocalBridge.Commands
             {
                 if (driveObjects.Count > 1)
                 {
-                    throw new InvalidOperationException($"Device item '{itemResolution.ItemReference}' contains multiple drive objects ({string.Join(", ", driveObjects.Select(candidate => candidate.DriveObjectNumber))}). Provide the optional <drive-object-number> argument.");
+                    throw new InvalidOperationException($"Device item '{itemResolution.ItemReference}' contains multiple drive objects ({string.Join(", ", driveObjects.Select(FormatDriveObjectNumber))}). Provide a readable <drive-object-number> argument; the available object numbers are shown when the API exposes them.");
                 }
 
                 driveObject = driveObjects[0];
@@ -87,10 +108,11 @@ namespace TiaLocalBridge.Commands
                     throw new ArgumentException($"Invalid <drive-object-number> '{driveObjectNumberText}'. It must be a non-negative integer.");
                 }
 
-                driveObject = driveObjects.FirstOrDefault(candidate => candidate.DriveObjectNumber == driveObjectNumber);
+                driveObject = driveObjects.FirstOrDefault(candidate =>
+                    TryGetDriveObjectNumber(candidate, out int candidateNumber) && candidateNumber == driveObjectNumber);
                 if (driveObject == null)
                 {
-                    throw new InvalidOperationException($"Drive object number '{driveObjectNumber}' was not found on device item '{itemResolution.ItemReference}'. Available drive object numbers: {string.Join(", ", driveObjects.Select(candidate => candidate.DriveObjectNumber))}");
+                    throw new InvalidOperationException($"Drive object number '{driveObjectNumber}' was not found or could not be read on device item '{itemResolution.ItemReference}'. Available drive object numbers: {string.Join(", ", driveObjects.Select(FormatDriveObjectNumber))}");
                 }
             }
 
@@ -124,7 +146,7 @@ namespace TiaLocalBridge.Commands
             var telegram = driveObject.Telegrams.Find(telegramType);
             if (telegram == null)
             {
-                throw new InvalidOperationException($"Drive object '{driveObject.DriveObjectNumber}' does not currently expose a telegram of type '{telegramType}'. Use SETDRIVETELEGRAMNUMBER to insert MainTelegram or SafetyTelegram when supported.");
+                throw new InvalidOperationException($"Drive object '{FormatDriveObjectNumber(driveObject)}' does not currently expose a telegram of type '{telegramType}'. Use SETDRIVETELEGRAMNUMBER to insert MainTelegram or SafetyTelegram when supported.");
             }
 
             return telegram;
@@ -151,7 +173,7 @@ namespace TiaLocalBridge.Commands
 
                 if (!telegram.CanChangeTelegram(telegramNumber))
                 {
-                    throw new InvalidOperationException($"Drive object '{driveObject.DriveObjectNumber}' cannot change telegram type '{telegramType}' to number '{telegramNumber}'.");
+                    throw new InvalidOperationException($"Drive object '{FormatDriveObjectNumber(driveObject)}' cannot change telegram type '{telegramType}' to number '{telegramNumber}'.");
                 }
 
                 telegram.TelegramNumber = telegramNumber;
@@ -164,7 +186,7 @@ namespace TiaLocalBridge.Commands
                 case TelegramType.MainTelegram:
                     if (!telegrams.CanInsertMainTelegram(telegramNumber))
                     {
-                        throw new InvalidOperationException($"Drive object '{driveObject.DriveObjectNumber}' cannot insert MainTelegram '{telegramNumber}'.");
+                        throw new InvalidOperationException($"Drive object '{FormatDriveObjectNumber(driveObject)}' cannot insert MainTelegram '{telegramNumber}'.");
                     }
 
                     telegrams.InsertMainTelegram(telegramNumber);
@@ -174,7 +196,7 @@ namespace TiaLocalBridge.Commands
                 case TelegramType.SafetyTelegram:
                     if (!telegrams.CanInsertSafetyTelegram(telegramNumber))
                     {
-                        throw new InvalidOperationException($"Drive object '{driveObject.DriveObjectNumber}' cannot insert SafetyTelegram '{telegramNumber}'.");
+                        throw new InvalidOperationException($"Drive object '{FormatDriveObjectNumber(driveObject)}' cannot insert SafetyTelegram '{telegramNumber}'.");
                     }
 
                     telegrams.InsertSafetyTelegram(telegramNumber);
@@ -182,7 +204,7 @@ namespace TiaLocalBridge.Commands
                     break;
 
                 default:
-                    throw new InvalidOperationException($"Telegram type '{telegramType}' is missing on drive object '{driveObject.DriveObjectNumber}' and cannot be inserted through this command. Only MainTelegram and SafetyTelegram insertion are currently supported.");
+                    throw new InvalidOperationException($"Telegram type '{telegramType}' is missing on drive object '{FormatDriveObjectNumber(driveObject)}' and cannot be inserted through this command. Only MainTelegram and SafetyTelegram insertion are currently supported.");
             }
 
             var inserted = telegrams.Find(telegramType);

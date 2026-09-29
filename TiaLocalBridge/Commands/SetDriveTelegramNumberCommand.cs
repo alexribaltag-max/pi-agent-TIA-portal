@@ -38,7 +38,7 @@ namespace TiaLocalBridge.Commands
                 "Drive telegram updated on device '{0}', item '{1}', drive object '{2}' [TelegramType={3}, Action={4}, OldNumber={5}, NewNumber={6}].",
                 CommandSupport.GetDeviceReference(deviceResolution.Project, deviceResolution.Device),
                 driveResolution.ItemResolution.ItemReference,
-                driveResolution.DriveObject.DriveObjectNumber,
+                DriveCommandSupport.FormatDriveObjectNumber(driveResolution.DriveObject),
                 telegramType,
                 action,
                 oldNumberText,

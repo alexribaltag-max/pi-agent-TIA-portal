@@ -211,9 +211,10 @@ TIA Agent has been tested with frontier models such as OpenAI 5.4 and Gemini 5.1
 
 ### Prerequisites
 
-- **TIA Portal V20** (currently tested version)
-- **Siemens Openness** installed and configured
-- **.NET Framework 4.8** (for the bridge and add-in)
+- **TIA Portal V21** (the current bridge/add-in target; live project workflows still need validation after this migration)
+- **TIA Portal Openness V21** (provided with the TIA installation; the local V21 API assemblies are referenced from `PublicAPI\V21\net48`)
+- **.NET Framework 4.8** runtime and **.NET Framework 4.8 Developer Pack** (needed to build the bridge and add-in)
+- **.NET SDK 8** or Visual Studio/MSBuild to build the projects
 - **pi coding agent** installed (`@earendil-works/pi-coding-agent`)
 - `npm`
 - **Python** for the agent to use for various tasks like document manipulation
@@ -230,8 +231,8 @@ NOTE: Install pi, clone the repo, and ask it to guide you during installation.
 
 To allow the bridge to interact with TIA Portal, you must ensure Openness is configured correctly:
 
-- **Enable Openness**: Ensure "TIA Portal Openness" was selected during the TIA Portal installation (under Options).
-- **User Group Membership**: You must add your Windows user account to the local **"Siemens TIA Openness"** user group.
+- **Openness installation**: TIA Portal V21 ships the Openness API as part of its installation. Confirm the V21 assemblies exist under `C:\Program Files\Siemens\Automation\Portal V21\PublicAPI\V21\net48`. If they are absent, modify/repair the TIA installation to add the Openness feature.
+- **User Group Membership**: Add your Windows user account to the local **"Siemens TIA Openness"** user group.
   1. Open **Computer Management** (`compmgmt.msc`).
   2. Navigate to **Local Users and Groups** > **Groups**.
   3. Double-click the **Siemens TIA Openness** group.

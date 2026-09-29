@@ -12,6 +12,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TiaPortalPublicApiPath Condition=" '$(TiaPortalPublicApiPath)' == '' ">C:\Program Files\Siemens\Automation\Portal V21\PublicAPI\V21\net48</TiaPortalPublicApiPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,8 +34,31 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Siemens.Engineering">
-      <HintPath>..\..\..\..\..\Program Files\Siemens\Automation\Portal V20\PublicAPI\V20\Siemens.Engineering.dll</HintPath>
+    <!-- TIA Portal V21 split the former Siemens.Engineering.dll into product assemblies.
+         Keep these references local to the installed Openness folder (Copy Local=false). -->
+    <Reference Include="Siemens.Engineering.Base">
+      <HintPath>$(TiaPortalPublicApiPath)\Siemens.Engineering.Base.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Siemens.Engineering.Step7">
+      <HintPath>$(TiaPortalPublicApiPath)\Siemens.Engineering.Step7.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Siemens.Engineering.Startdrive">
+      <HintPath>$(TiaPortalPublicApiPath)\Siemens.Engineering.Startdrive.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Siemens.Engineering.WinCC.Extension">
+      <HintPath>$(TiaPortalPublicApiPath)\Siemens.Engineering.WinCC.Extension.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Siemens.Engineering.WinCC">
+      <HintPath>$(TiaPortalPublicApiPath)\Siemens.Engineering.WinCC.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Siemens.Engineering.WinCCUnified">
+      <HintPath>$(TiaPortalPublicApiPath)\Siemens.Engineering.WinCCUnified.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using System.Reflection;
+using Microsoft.Win32;
 using Siemens.Engineering;
 using TiaLocalBridge.Commands;
 
@@ -12,6 +15,8 @@ namespace TiaLocalBridge
 
         static Program()
         {
+            AppDomain.CurrentDomain.AssemblyResolve += ResolveSiemensEngineeringAssembly;
+
             _commands = new Dictionary<string, ITiaCommand>(StringComparer.OrdinalIgnoreCase)
             {
                 { "OPEN", new OpenProjectCommand() },
@@ -92,6 +97,44 @@ namespace TiaLocalBridge
                 { "ENSUREHMISCREENITEMTAGBINDING", new EnsureHmiScreenItemTagBindingCommand() },
                 { "HELP", new HelpCommand(GetAvailableCommands) }
             };
+        }
+
+        private static Assembly ResolveSiemensEngineeringAssembly(object sender, ResolveEventArgs args)
+        {
+            var requestedName = new AssemblyName(args.Name);
+            if (requestedName.Name == null ||
+                !requestedName.Name.StartsWith("Siemens.Engineering.", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            var assemblyPath = Path.Combine(GetOpennessAssemblyDirectory(), requestedName.Name + ".dll");
+            return File.Exists(assemblyPath) ? Assembly.LoadFrom(assemblyPath) : null;
+        }
+
+        private static string GetOpennessAssemblyDirectory()
+        {
+            const string v21PublicApiRegistryPath = @"SOFTWARE\Siemens\Automation\Openness\21.0\PublicAPI";
+            using (var publicApiKey = Registry.LocalMachine.OpenSubKey(v21PublicApiRegistryPath))
+            {
+                if (publicApiKey != null)
+                {
+                    foreach (var apiVersion in publicApiKey.GetSubKeyNames())
+                    {
+                        using (var apiVersionKey = publicApiKey.OpenSubKey(apiVersion))
+                        using (var net48Key = apiVersionKey?.OpenSubKey("net48"))
+                        {
+                            var baseAssemblyPath = net48Key?.GetValue("Siemens.Engineering.Base") as string;
+                            if (!string.IsNullOrWhiteSpace(baseAssemblyPath))
+                            {
+                                return Path.GetDirectoryName(baseAssemblyPath);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return @"C:\Program Files\Siemens\Automation\Portal V21\PublicAPI\V21\net48";
         }
 
         static void Main(string[] args)

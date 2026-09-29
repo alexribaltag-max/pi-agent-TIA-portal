@@ -91,6 +91,7 @@ namespace TiaLocalBridge.Commands
         {
             var normalized = (value ?? string.Empty).Trim();
             return string.Equals(normalized, "<Internal tag>", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(normalized, "<Variable interna>", StringComparison.OrdinalIgnoreCase)
                 ? string.Empty
                 : normalized;
         }

@@ -27,7 +27,7 @@ namespace TiaLocalBridge.Commands
                         "ItemReference={0}, ItemName={1}, DriveObjectNumber={2}, Telegrams={3}",
                         resolution.ItemResolution.ItemReference,
                         resolution.ItemResolution.Item.Name,
-                        resolution.DriveObject.DriveObjectNumber,
+                        DriveCommandSupport.FormatDriveObjectNumber(resolution.DriveObject),
                         telegramSummaries.Any() ? string.Join(" | ", telegramSummaries) : "<none>");
                 })
                 .ToList();

@@ -42,7 +42,8 @@ namespace TiaLocalBridge.Commands
                 TemplateNameToken,
                 TemplateNumberToken,
                 fcNumber,
-                "FC");
+                "FC",
+                CommandSupport.GetProjectEditingCulture(resolution.Project));
 
             var targetGroupReference = string.IsNullOrWhiteSpace(targetGroup.GroupReference) ? "<root>" : targetGroup.GroupReference;
             var createdBlockReference = string.Equals(targetGroupReference, "<root>", StringComparison.OrdinalIgnoreCase)

@@ -7,6 +7,7 @@ using System.IO;
 using System.Reflection;
 using System.Security;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Drawing;
 using Siemens.Engineering;
 using Siemens.Engineering.Compiler;
@@ -575,6 +576,15 @@ namespace TiaLocalBridge.Commands
 
             if (!nameMatches.Any())
             {
+                var accentInsensitiveReference = NormalizeForLooseTextComparison(normalizedReference);
+                nameMatches = allTables
+                    .Where(table => string.Equals(NormalizeForLooseTextComparison(table.Table.Name), accentInsensitiveReference, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(NormalizeForLooseTextComparison(table.TableReference), accentInsensitiveReference, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            if (!nameMatches.Any())
+            {
                 throw new InvalidOperationException(
                     allTables.Any()
                         ? $"Unified HMI tag table '{normalizedReference}' was not found. Available tag tables: {string.Join(", ", allTables.Select(table => table.TableReference))}"
@@ -805,6 +815,20 @@ namespace TiaLocalBridge.Commands
             if (exactMatch != null)
             {
                 return exactMatch;
+            }
+
+            var accentInsensitiveName = NormalizeForLooseTextComparison(normalizedName);
+            var nameMatches = connections
+                .Where(connection => string.Equals(NormalizeForLooseTextComparison(connection.Name), accentInsensitiveName, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            if (nameMatches.Count == 1)
+            {
+                return nameMatches[0];
+            }
+
+            if (nameMatches.Count > 1)
+            {
+                throw new InvalidOperationException($"Multiple Unified HMI connections match '{normalizedName}' when accents are ignored. Use a unique connection name.");
             }
 
             throw new InvalidOperationException(
@@ -1115,6 +1139,19 @@ namespace TiaLocalBridge.Commands
                 throw new InvalidOperationException($"Property '{propertyName}' is not writable on type '{tag.GetType().Name}'.");
             }
 
+            if (string.IsNullOrEmpty(value) && property.CanRead)
+            {
+                var existingValue = property.GetValue(tag, null) as string;
+                var isInternalConnection = string.Equals(property.Name, "Connection", StringComparison.OrdinalIgnoreCase)
+                    && (string.Equals(existingValue, "<Internal tag>", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(existingValue, "<Variable interna>", StringComparison.OrdinalIgnoreCase));
+
+                if (string.IsNullOrWhiteSpace(existingValue) || isInternalConnection)
+                {
+                    return;
+                }
+            }
+
             try
             {
                 property.SetValue(tag, value ?? string.Empty, null);
@@ -1272,9 +1309,10 @@ namespace TiaLocalBridge.Commands
 
                 if (property.PropertyType == typeof(MultilingualText))
                 {
+                    var previousValueText = FormatHmiPropertyValue(previousValue);
                     TrySetMultilingualTextProperty(instance, property.Name, rawValue ?? string.Empty);
                     var updatedValue = property.GetValue(instance, null);
-                    return $"Updated property '{property.Name}' on {scopeDescription} [OldValue={FormatHmiPropertyValue(previousValue)}, NewValue={FormatHmiPropertyValue(updatedValue)}, ConvertedType=MultilingualText].";
+                    return $"Updated property '{property.Name}' on {scopeDescription} [OldValue={previousValueText}, NewValue={FormatHmiPropertyValue(updatedValue)}, ConvertedType=MultilingualText].";
                 }
 
                 if (!property.CanWrite)
@@ -1635,6 +1673,31 @@ namespace TiaLocalBridge.Commands
             return normalizedBlockName;
         }
 
+        public static string GetProjectEditingCulture(Project project)
+        {
+            if (project == null)
+            {
+                throw new ArgumentNullException(nameof(project));
+            }
+
+            var languageSettings = project.LanguageSettings;
+            var editingCulture = languageSettings?.EditingLanguage?.Culture;
+            if (editingCulture != null)
+            {
+                return editingCulture.Name;
+            }
+
+            var activeCulture = languageSettings?.ActiveLanguages?
+                .FirstOrDefault(language => language?.Culture != null)?
+                .Culture;
+            if (activeCulture != null)
+            {
+                return activeCulture.Name;
+            }
+
+            throw new InvalidOperationException("The TIA project does not expose an editing or active language culture for PLC block template import.");
+        }
+
         public static TBlock ImportPlcBlockTemplate<TBlock>(
             PlcSoftware plcSoftware,
             PlcBlockGroupResolution targetGroup,
@@ -1644,7 +1707,8 @@ namespace TiaLocalBridge.Commands
             string templateNameToken,
             string templateNumberToken,
             int blockNumber,
-            string expectedBlockTypeName)
+            string expectedBlockTypeName,
+            string templateCulture)
             where TBlock : PlcBlock
         {
             if (!File.Exists(templatePath))
@@ -1657,11 +1721,23 @@ namespace TiaLocalBridge.Commands
                 ? blockName
                 : targetGroupReference + "/" + blockName;
 
+            if (string.IsNullOrWhiteSpace(templateCulture))
+            {
+                throw new ArgumentException("A project language culture is required for PLC block template import.", nameof(templateCulture));
+            }
+
             var templateXml = File.ReadAllText(templatePath);
+            if (!Regex.IsMatch(templateXml, @"<Culture>[^<]*</Culture>"))
+            {
+                throw new InvalidOperationException($"{commandName} template '{templatePath}' contains no Culture elements to localize.");
+            }
+
             var escapedBlockName = SecurityElement.Escape(blockName) ?? blockName;
+            var escapedCulture = SecurityElement.Escape(templateCulture) ?? templateCulture;
             var customizedXml = templateXml
                 .Replace($"<Name>{templateNameToken}</Name>", $"<Name>{escapedBlockName}</Name>")
                 .Replace($"<Number>{templateNumberToken}</Number>", $"<Number>{blockNumber}</Number>");
+            customizedXml = Regex.Replace(customizedXml, @"<Culture>[^<]*</Culture>", $"<Culture>{escapedCulture}</Culture>");
 
             if (customizedXml.Contains(templateNameToken) || customizedXml.Contains(templateNumberToken))
             {

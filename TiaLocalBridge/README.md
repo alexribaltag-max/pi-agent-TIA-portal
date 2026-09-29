@@ -42,22 +42,36 @@ tha main purpose is to research the use of it by AI agents to interact with TIA 
 ## Requirements
 
 - Windows
-- TIA Portal installed
-- Siemens Public API / Openness DLL available
-- .NET Framework 4.8
+- TIA Portal V21 installed with its Openness API assemblies
+- .NET Framework 4.8 Developer Pack (for compiling against `net48`)
+- .NET SDK 8 or Visual Studio/MSBuild
 - A TIA Portal instance running, or permission for the bridge to start one (Check TIA openess documentaion)
 
-This project currently references:
-- `Siemens.Engineering.dll`
+The bridge references the modular V21 assemblies (`Siemens.Engineering.Base`, `Step7`, `Startdrive`, `WinCC`, `WinCC.Extension`, and `WinCCUnified`) from the installed `PublicAPI\V21\net48` directory. It does not copy Siemens assemblies to the output folder; at startup it resolves them from the V21 Openness registry entry.
+
+### TIA Portal V21 migration status
+
+TIA Portal V21 restructured Openness and removed the previous monolithic `Siemens.Engineering.dll` reference layout. This repository now targets the V21 modular assemblies, resolves them using the V21 registry layout, uses a V21 Add-In publisher namespace, and emits V21 metadata from the built-in block templates. V21 is not backward compatible with earlier TIA Portal versions; use a V20-targeted build for V20.
+
+The bridge and add-in have been compile-checked against the V21 installation on this machine. Live connection and project operations have not yet been regression-tested against a V21 project. The recorded behavior notes below came from earlier V20 testing unless explicitly stated otherwise.
+
+The build defaults to `C:\Program Files\Siemens\Automation\Portal V21\PublicAPI\V21\net48`. Override `TiaPortalPublicApiPath` when TIA is installed elsewhere.
 
 ---
 
 ## Build
 
-Example build command:
+Build from the repository root with the .NET SDK:
 
 ```powershell
-& 'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe' 'C:\Users\masias\Documents\Workspace2\TiaLocalBridge\TiaLocalBridge.csproj' /t:Build /p:Configuration=Debug /nologo
+dotnet msbuild .\TiaLocalBridge\TiaLocalBridge.csproj /t:Build /p:Configuration=Debug
+```
+
+For the add-in, restore and build its SDK-style project separately:
+
+```powershell
+dotnet restore .\TiaPiAddin\TiaPiAddin.csproj
+dotnet msbuild .\TiaPiAddin\TiaPiAddin.csproj /t:Build /p:Configuration=Debug
 ```
 
 Output executable:
@@ -146,7 +160,7 @@ These commands expose the Siemens MC Drives telegram APIs that were previously e
 - `UPDATEPLCTAG|<device-reference>|<table-reference>|<tag-name>|<data-type>|<logical-address>`
 - `DELETEPLCTAG|<device-reference>|<table-reference>|<tag-name>`
 
-PLC tag table resolution now also tolerates accent-insensitive names, which is useful when the default table name contains localized characters such as `estándar`.
+PLC tag table resolution tolerates accent-insensitive names, which is useful when the default table name contains localized characters such as `estándar`. Unified HMI tag-table and connection resolution applies the same accent-insensitive fallback; when bridge input encoding mangles accents, use an unaccented reference such as `Tabla de variables estandar` or `HMI_Conexion_1`.
 
 ### PLC block commands
 - `GETPLCBLOCKGROUPS|<device-reference>`

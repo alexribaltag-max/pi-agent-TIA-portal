@@ -28,8 +28,8 @@ namespace TiaLocalBridge.Commands
                 .ToList();
 
             return telegramSummaries.Any()
-                ? $"Drive telegrams for device '{CommandSupport.GetDeviceReference(deviceResolution.Project, deviceResolution.Device)}', item '{driveResolution.ItemResolution.ItemReference}', drive object '{driveResolution.DriveObject.DriveObjectNumber}': {string.Join(" || ", telegramSummaries)}"
-                : $"No drive telegrams were exposed for device '{CommandSupport.GetDeviceReference(deviceResolution.Project, deviceResolution.Device)}', item '{driveResolution.ItemResolution.ItemReference}', drive object '{driveResolution.DriveObject.DriveObjectNumber}'.";
+                ? $"Drive telegrams for device '{CommandSupport.GetDeviceReference(deviceResolution.Project, deviceResolution.Device)}', item '{driveResolution.ItemResolution.ItemReference}', drive object '{DriveCommandSupport.FormatDriveObjectNumber(driveResolution.DriveObject)}': {string.Join(" || ", telegramSummaries)}"
+                : $"No drive telegrams were exposed for device '{CommandSupport.GetDeviceReference(deviceResolution.Project, deviceResolution.Device)}', item '{driveResolution.ItemResolution.ItemReference}', drive object '{DriveCommandSupport.FormatDriveObjectNumber(driveResolution.DriveObject)}'.";
         }
     }
 }
