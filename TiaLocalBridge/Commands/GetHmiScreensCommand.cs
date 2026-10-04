@@ -7,7 +7,7 @@ namespace TiaLocalBridge.Commands
     internal class GetHmiScreensCommand : ITiaCommand
     {
         public string Name => "GETHMISCREENS";
-        public string Description => "Lists all Unified HMI screens for the specified HMI device reference, including the screen group path and screen number.";
+        public string Description => "Lists screens for Unified or classic WinCC targets, including their folder/group path and Unified screen number where available.";
         public string Usage => "GETHMISCREENS|<device-reference>";
         public string Example => "GETHMISCREENS|DemoProject/HMI_1";
         public bool RequiresPortal => true;
@@ -22,7 +22,19 @@ namespace TiaLocalBridge.Commands
 
             if (hmiSoftware == null)
             {
-                throw new InvalidOperationException($"Device '{resolvedReference}' does not contain Unified HMI software.");
+                var classicHmi = CommandSupport.TryGetHmiSoftware(resolution.Device);
+                if (classicHmi == null)
+                {
+                    throw new InvalidOperationException($"Device '{resolvedReference}' does not contain HMI software.");
+                }
+
+                var classicScreens = CommandSupport.GetClassicHmiScreens(classicHmi)
+                    .OrderBy(screen => screen.ObjectReference, StringComparer.OrdinalIgnoreCase)
+                    .Select(screen => $"{screen.ObjectReference} [Folder={screen.ParentReference}]")
+                    .ToList();
+                return classicScreens.Any()
+                    ? $"Device '{resolvedReference}' classic HMI screens: {string.Join(", ", classicScreens)}"
+                    : $"Device '{resolvedReference}' has no classic HMI screens.";
             }
 
             var screens = CommandSupport.GetAllUnifiedHmiScreens(hmiSoftware)

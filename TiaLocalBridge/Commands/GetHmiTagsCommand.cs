@@ -7,7 +7,7 @@ namespace TiaLocalBridge.Commands
     internal class GetHmiTagsCommand : ITiaCommand
     {
         public string Name => "GETHMITAGS";
-        public string Description => "Lists HMI tags for the specified HMI device reference. For Unified HMI this includes table, data type, address, and connection information.";
+        public string Description => "Lists HMI tags for Unified or classic WinCC targets. Unified output includes table, data type, address, and connection; classic Comfort output includes available engineering attributes.";
         public string Usage => "GETHMITAGS|<device-reference>";
         public string Example => "GETHMITAGS|DemoProject/HMI_1";
         public bool RequiresPortal => true;
@@ -43,10 +43,26 @@ namespace TiaLocalBridge.Commands
                 throw new InvalidOperationException($"Device '{resolvedReference}' does not contain HMI software.");
             }
 
-            var classicTags = CommandSupport.GetAllHmiTagNames(hmiSoftware).ToList();
+            var classicTags = CommandSupport.GetClassicHmiTagTables(hmiSoftware)
+                .SelectMany(table =>
+                {
+                    var tags = table.Item.GetType().GetProperty("Tags")?.GetValue(table.Item, null) as System.Collections.IEnumerable;
+                    return (tags == null ? Enumerable.Empty<object>() : tags.Cast<object>())
+                        .Select(tag =>
+                        {
+                            var name = tag.GetType().GetProperty("Name")?.GetValue(tag, null)?.ToString() ?? "<unnamed>";
+                            var attributes = tag is Siemens.Engineering.IEngineeringObject engineeringObject
+                                ? CommandSupport.GetEngineeringAttributeSummaries(engineeringObject)
+                                : new System.Collections.Generic.List<string>();
+                            return attributes.Any()
+                                ? $"{name} [Table={table.ObjectReference}, {string.Join("; ", attributes)}]"
+                                : $"{name} [Table={table.ObjectReference}]";
+                        });
+                })
+                .ToList();
             return classicTags.Any()
-                ? $"Device '{resolvedReference}' HMI tags: {string.Join(", ", classicTags)}"
-                : $"Device '{resolvedReference}' has no HMI tags.";
+                ? $"Device '{resolvedReference}' classic HMI tags: {string.Join(", ", classicTags)}"
+                : $"Device '{resolvedReference}' has no classic HMI tags.";
         }
     }
 }

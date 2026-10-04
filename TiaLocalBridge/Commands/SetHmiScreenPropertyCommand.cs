@@ -6,7 +6,7 @@ namespace TiaLocalBridge.Commands
     internal class SetHmiScreenPropertyCommand : ITiaCommand
     {
         public string Name => "SETHMISCREENPROPERTY";
-        public string Description => "Sets one writable Unified HMI screen property. Use GETHMISCREENPROPERTIES first to inspect the available properties for the selected screen.";
+        public string Description => "Sets a writable Unified screen property or classic WinCC screen engineering attribute. Use GETHMISCREENPROPERTIES first to inspect available settings.";
         public string Usage => "SETHMISCREENPROPERTY|<device-reference>|<screen-reference>|<property-name>|<value>";
         public string Example => "SETHMISCREENPROPERTY|DemoProject/HMI_1|Config/Overview|BackColor|#F5F5F5";
         public bool RequiresPortal => true;
@@ -21,7 +21,18 @@ namespace TiaLocalBridge.Commands
 
             if (hmiSoftware == null)
             {
-                throw new InvalidOperationException($"Device '{resolvedReference}' does not contain Unified HMI software.");
+                var classicHmi = CommandSupport.TryGetHmiSoftware(resolution.Device);
+                if (classicHmi == null)
+                {
+                    throw new InvalidOperationException($"Device '{resolvedReference}' does not contain HMI software.");
+                }
+
+                var classicScreen = CommandSupport.ResolveClassicHmiScreen(classicHmi, providedArgs[1]);
+                return CommandSupport.SetNamedPropertyOrAttributeValue(
+                    classicScreen.Item,
+                    providedArgs[2],
+                    providedArgs[3],
+                    $"classic HMI screen '{classicScreen.ObjectReference}' on device '{resolvedReference}'");
             }
 
             var screen = CommandSupport.ResolveUnifiedHmiScreen(hmiSoftware, providedArgs[1]);

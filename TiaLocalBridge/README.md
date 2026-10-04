@@ -53,7 +53,7 @@ The bridge references the modular V21 assemblies (`Siemens.Engineering.Base`, `S
 
 TIA Portal V21 restructured Openness and removed the previous monolithic `Siemens.Engineering.dll` reference layout. This repository now targets the V21 modular assemblies, resolves them using the V21 registry layout, uses a V21 Add-In publisher namespace, and emits V21 metadata from the built-in block templates. V21 is not backward compatible with earlier TIA Portal versions; use a V20-targeted build for V20.
 
-The bridge and add-in have been compile-checked against the V21 installation on this machine. Live connection and project operations have not yet been regression-tested against a V21 project. The recorded behavior notes below came from earlier V20 testing unless explicitly stated otherwise.
+The bridge and add-in have been compile-checked against the V21 installation on this machine. V21 live regression results, including PLC, hardware/network, drives, and Unified HMI, are recorded in the repository-root `V21_REGRESSION_CHECKLIST.md`. Classic WinCC Comfort HMI support is a separate compatibility layer and still requires live testing against a Comfort panel project.
 
 The build defaults to `C:\Program Files\Siemens\Automation\Portal V21\PublicAPI\V21\net48`. Override `TiaPortalPublicApiPath` when TIA is installed elsewhere.
 
@@ -185,6 +185,9 @@ PLC tag table resolution tolerates accent-insensitive names, which is useful whe
 - `IMPORTPLCBLOCKSMARTJSON|<device-reference>|<source-path>|[target-group-reference]`
 
 ### HMI commands
+
+Common HMI discovery commands now recognize both classic WinCC targets (`HmiTarget`, including Comfort panels) and WinCC Unified targets. The HMI tag CRUD, connection editing, and screen-item commands listed below remain Unified-only except where noted in the Comfort support section.
+
 - `GETHMITAGS|<device-reference>`
 - `GETHMITAGTABLES|<device-reference>`
 - `GETHMITAGXREF|<device-reference>|<table-reference>|<tag-name>|[filter]`
@@ -698,6 +701,24 @@ GETPLCTAGS|PackagingMachine/S7-1500/ET200MP station_1
 GETPLCTAGXREF|PackagingMachine/S7-1500/ET200MP station_1|02_Global/Global|MyTag|AllObjects
 ADDPLCTAG|PackagingMachine/S7-1500/ET200MP station_1|02_Global/Global|MyTag|Bool|%M100.0
 ```
+
+### Work with WinCC Comfort panels (classic `HmiTarget`)
+
+The classic WinCC Openness model is distinct from `HmiSoftware` (Unified). On Comfort panel targets, the bridge currently supports read-oriented discovery of tag tables/tags and screen folders/screens, engineering-attribute inspection and setting for screens, and deletion of an existing HMI tag. Screen/tag table resolution accepts nested folder paths. These APIs expose engineering attributes rather than Unified's strongly typed screen/widget model.
+
+```text
+GETHMITAGTABLES|DemoProject/HMI_Comfort
+GETHMITAGS|DemoProject/HMI_Comfort
+GETHMISCREENGROUPS|DemoProject/HMI_Comfort
+GETHMISCREENS|DemoProject/HMI_Comfort
+GETHMISCREENPROPERTIES|DemoProject/HMI_Comfort|Folder/Overview
+SETHMISCREENPROPERTY|DemoProject/HMI_Comfort|Folder/Overview|<writable-attribute>|<value>
+DELETEHMITAG|DemoProject/HMI_Comfort|TagFolder/TagTable|OldTag
+```
+
+`GETHMITAGS` includes attributes that the installed Openness API exposes for each classic tag. Use `GETHMISCREENPROPERTIES` before attempting a property write; only writable attributes supported by that screen/device are accepted. Classic Comfort screen-item inspection/editing, tag creation/update, connection editing, and HMI XML import/export are not yet implemented by these bridge commands. Avoid assuming that a Unified command is compatible merely because its command name is HMI-generic.
+
+This split follows the Siemens Openness API documentation: the general HMI target model (including Comfort panels) is documented in section 5.12, separately from WinCC Unified `HmiSoftware` in section 5.13. Official reference: [TIA Portal Openness API for automation of engineering workflows](https://support.industry.siemens.com/cs/attachments/109826886/TIAPortalOpenness_enUS_en-US.pdf).
 
 ### Work with Unified HMI tags, connections, screens, and items
 ```text

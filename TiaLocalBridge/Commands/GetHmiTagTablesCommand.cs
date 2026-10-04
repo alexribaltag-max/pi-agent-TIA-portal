@@ -7,7 +7,7 @@ namespace TiaLocalBridge.Commands
     internal class GetHmiTagTablesCommand : ITiaCommand
     {
         public string Name => "GETHMITAGTABLES";
-        public string Description => "Lists all Unified HMI tag tables for the specified HMI device reference so you can target a table when creating, updating, or deleting HMI tags.";
+        public string Description => "Lists tag tables for Unified or classic WinCC targets. Classic Comfort table references include nested tag-folder paths.";
         public string Usage => "GETHMITAGTABLES|<device-reference>";
         public string Example => "GETHMITAGTABLES|DemoProject/HMI_1";
         public bool RequiresPortal => true;
@@ -22,7 +22,26 @@ namespace TiaLocalBridge.Commands
 
             if (hmiSoftware == null)
             {
-                throw new InvalidOperationException($"Device '{resolvedReference}' does not contain Unified HMI software.");
+                var classicHmi = CommandSupport.TryGetHmiSoftware(resolution.Device);
+                if (classicHmi == null)
+                {
+                    throw new InvalidOperationException($"Device '{resolvedReference}' does not contain HMI software.");
+                }
+
+                var classicTables = CommandSupport.GetClassicHmiTagTables(classicHmi)
+                    .OrderBy(table => table.ObjectReference, StringComparer.OrdinalIgnoreCase)
+                    .Select(table =>
+                    {
+                        var tagsProperty = table.Item.GetType().GetProperty("Tags");
+                        var tags = tagsProperty?.GetValue(table.Item, null) as System.Collections.IEnumerable;
+                        var count = tags == null ? 0 : tags.Cast<object>().Count();
+                        return $"{table.ObjectReference} [TagCount={count}]";
+                    })
+                    .ToList();
+
+                return classicTables.Any()
+                    ? $"Device '{resolvedReference}' classic HMI tag tables: {string.Join(", ", classicTables)}"
+                    : $"Device '{resolvedReference}' has no classic HMI tag tables.";
             }
 
             var tables = CommandSupport.GetAllUnifiedHmiTagTables(hmiSoftware)

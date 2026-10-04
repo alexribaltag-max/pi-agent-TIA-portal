@@ -155,7 +155,27 @@ Fixture: disposable clone `20260720_V21/HMI_CC20`; original source project untou
 - [x] Reran `HELP` after the final HMI fixes; full command registry returned. `LIST` after each rebuild attached to the existing V21 instance and reported `20260720_V21`.
 - [ ] Summarize every registered command as Pass / Fail / Not applicable with evidence; preserve this checklist and note remaining defects.
 
+## Stage 9 — Classic WinCC Comfort HMI support
+
+The initial classic-HMI compatibility layer is implemented separately from Unified HMI because Siemens Openness exposes Comfort devices as `HmiTarget`, not Unified `HmiSoftware`.
+
+- [x] Reviewed the Siemens Openness API reference: classic HMI device access is documented in section 5.12; WinCC Unified has a separate section 5.13. The general object-list table documents screens and several screen objects for Comfort Panels.
+- [x] Added classic-target discovery to `GETHMITAGTABLES`, `GETHMITAGS`, `GETHMISCREENGROUPS`, and `GETHMISCREENS`, including nested tag/screen folder paths.
+- [x] Added classic HMI screen engineering-attribute reads/writes to `GETHMISCREENPROPERTIES` and `SETHMISCREENPROPERTY`.
+- [x] Added classic HMI tag deletion to `DELETEHMITAG`.
+- [x] Bridge Debug build passed against installed V21 modular assemblies after the changes.
+- [!] Live Comfort-panel regression not run: no open TIA project/Comfort target is available in the bridge session. This support is not yet field-verified.
+- [ ] Add and test classic Comfort screen-item access/edit, tag create/update, connection operations, and XML import/export using a disposable Comfort-panel project. Do not infer Unified command compatibility for these operations.
+
 ## Work log
+
+### Current session — initial Comfort HMI support
+
+- Reviewed `V21_REGRESSION_CHECKLIST.md`; it documents a completed Unified HMI regression on a disposable clone but no Comfort-panel fixture. Also found and corrected the README's stale statement that no V21 live regression had been done.
+- Checked the Siemens Openness API guide. The general HMI model is section 5.12; Unified `HmiSoftware` is separately described in section 5.13. Confirmed installed V21 WinCC assembly exposes the classic `HmiTarget`, screen folder/screen and tag folder/tag-table/tag APIs.
+- Implemented conservative classic target support for tag/screen discovery, engineering-attribute screen inspection/write, and tag deletion. Existing Unified-specific methods remain unchanged.
+- Build: `dotnet msbuild TiaLocalBridge/TiaLocalBridge.csproj -target:Build -property:Configuration=Debug` succeeded. First attempt hit a running bridge executable lock; sent `EXIT` to release the process and rebuilt successfully.
+- Live Comfort testing remains pending; the bridge reported no open projects.
 
 ### 2026-06-17 — Initial smoke test (previous agent turn)
 

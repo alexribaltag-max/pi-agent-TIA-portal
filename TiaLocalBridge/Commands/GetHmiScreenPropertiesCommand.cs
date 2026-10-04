@@ -7,7 +7,7 @@ namespace TiaLocalBridge.Commands
     internal class GetHmiScreenPropertiesCommand : ITiaCommand
     {
         public string Name => "GETHMISCREENPROPERTIES";
-        public string Description => "Lists the public properties of one Unified HMI screen so you can inspect screen-level geometry and visual settings before changing them.";
+        public string Description => "Lists public properties for a Unified screen or engineering attributes exposed by a classic WinCC screen.";
         public string Usage => "GETHMISCREENPROPERTIES|<device-reference>|<screen-reference>";
         public string Example => "GETHMISCREENPROPERTIES|DemoProject/HMI_1|Config/Overview";
         public bool RequiresPortal => true;
@@ -22,7 +22,19 @@ namespace TiaLocalBridge.Commands
 
             if (hmiSoftware == null)
             {
-                throw new InvalidOperationException($"Device '{resolvedReference}' does not contain Unified HMI software.");
+                var classicHmi = CommandSupport.TryGetHmiSoftware(resolution.Device);
+                if (classicHmi == null)
+                {
+                    throw new InvalidOperationException($"Device '{resolvedReference}' does not contain HMI software.");
+                }
+
+                var classicScreen = CommandSupport.ResolveClassicHmiScreen(classicHmi, providedArgs[1]);
+                var classicProperties = classicScreen.Item is Siemens.Engineering.IEngineeringObject classicEngineeringObject
+                    ? CommandSupport.GetEngineeringAttributeSummaries(classicEngineeringObject)
+                    : new System.Collections.Generic.List<string>();
+                return classicProperties.Any()
+                    ? $"Classic HMI screen properties for '{classicScreen.ObjectReference}' on device '{resolvedReference}': {string.Join(" || ", classicProperties)}"
+                    : $"No engineering attributes were exposed for classic HMI screen '{classicScreen.ObjectReference}' on device '{resolvedReference}'.";
             }
 
             var screen = CommandSupport.ResolveUnifiedHmiScreen(hmiSoftware, providedArgs[1]);

@@ -107,6 +107,13 @@ namespace TiaLocalBridge.Commands
         public HmiTag Tag { get; set; }
     }
 
+    internal sealed class ClassicHmiObjectResolution
+    {
+        public object Item { get; set; }
+        public string ParentReference { get; set; }
+        public string ObjectReference { get; set; }
+    }
+
     internal static class CommandSupport
     {
         public static string[] GetProvidedArgs(string[] args)
@@ -534,6 +541,114 @@ namespace TiaLocalBridge.Commands
         public static HmiSoftware TryGetUnifiedHmiSoftware(Device device)
         {
             return TryGetSoftware(device) as HmiSoftware;
+        }
+
+        public static List<ClassicHmiObjectResolution> GetClassicHmiTagTables(object hmiSoftware)
+        {
+            if (!(hmiSoftware is Siemens.Engineering.Hmi.HmiTarget classicHmi))
+            {
+                return new List<ClassicHmiObjectResolution>();
+            }
+
+            var result = new List<ClassicHmiObjectResolution>();
+            AddClassicHmiTagTablesRecursive(classicHmi.TagFolder, null, result);
+            return result;
+        }
+
+        public static ClassicHmiObjectResolution ResolveClassicHmiTagTable(object hmiSoftware, string tableReference)
+        {
+            if (string.IsNullOrWhiteSpace(tableReference))
+            {
+                throw new ArgumentException("Classic HMI tag table reference cannot be empty.");
+            }
+
+            var normalizedReference = tableReference.Trim();
+            var tables = GetClassicHmiTagTables(hmiSoftware);
+            var matches = tables.Where(table =>
+                string.Equals(table.ObjectReference, normalizedReference, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(GetClassicHmiObjectName(table.Item), normalizedReference, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (matches.Count == 1)
+            {
+                return matches[0];
+            }
+
+            throw new InvalidOperationException(
+                matches.Count > 1
+                    ? $"Multiple classic HMI tag tables named '{normalizedReference}' were found. Use a folder-qualified table reference."
+                    : tables.Any()
+                        ? $"Classic HMI tag table '{normalizedReference}' was not found. Available tables: {string.Join(", ", tables.Select(table => table.ObjectReference))}"
+                        : "The classic HMI has no tag tables.");
+        }
+
+        public static List<ClassicHmiObjectResolution> GetClassicHmiScreenGroups(object hmiSoftware)
+        {
+            if (!(hmiSoftware is Siemens.Engineering.Hmi.HmiTarget classicHmi))
+            {
+                return new List<ClassicHmiObjectResolution>();
+            }
+
+            var result = new List<ClassicHmiObjectResolution>();
+            AddClassicHmiScreenGroupsRecursive(classicHmi.ScreenFolder, null, result);
+            return result;
+        }
+
+        public static List<ClassicHmiObjectResolution> GetClassicHmiScreens(object hmiSoftware)
+        {
+            if (!(hmiSoftware is Siemens.Engineering.Hmi.HmiTarget classicHmi))
+            {
+                return new List<ClassicHmiObjectResolution>();
+            }
+
+            var result = new List<ClassicHmiObjectResolution>();
+            AddClassicHmiScreensRecursive(classicHmi.ScreenFolder, null, result);
+            return result;
+        }
+
+        public static ClassicHmiObjectResolution ResolveClassicHmiScreen(object hmiSoftware, string screenReference)
+        {
+            if (string.IsNullOrWhiteSpace(screenReference))
+            {
+                throw new ArgumentException("HMI screen reference cannot be empty.");
+            }
+
+            var normalizedReference = screenReference.Trim();
+            var screens = GetClassicHmiScreens(hmiSoftware);
+            var exactMatch = screens.FirstOrDefault(screen => string.Equals(screen.ObjectReference, normalizedReference, StringComparison.OrdinalIgnoreCase));
+            if (exactMatch != null)
+            {
+                return exactMatch;
+            }
+
+            var nameMatches = screens.Where(screen => string.Equals(GetClassicHmiObjectName(screen.Item), normalizedReference, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (nameMatches.Count == 1)
+            {
+                return nameMatches[0];
+            }
+
+            throw new InvalidOperationException(
+                nameMatches.Count > 1
+                    ? $"Multiple classic HMI screens named '{normalizedReference}' were found. Use a folder-qualified screen reference."
+                    : screens.Any()
+                        ? $"Classic HMI screen '{normalizedReference}' was not found. Available screens: {string.Join(", ", screens.Select(screen => screen.ObjectReference))}"
+                        : "The classic HMI has no screens.");
+        }
+
+        public static List<string> GetEngineeringAttributeSummaries(IEngineeringObject engineeringObject)
+        {
+            if (engineeringObject == null)
+            {
+                return new List<string>();
+            }
+
+            return GetWritableAndReadableAttributeInfos(engineeringObject)
+                .Select(info =>
+                {
+                    var value = TryGetAttributeValue(engineeringObject, info.Name, out var error);
+                    var access = info.AccessMode.ToString();
+                    var valueText = string.IsNullOrWhiteSpace(error) ? FormatEngineeringValue(value) : $"<read-error:{error}>";
+                    return $"{info.Name} [Access={access}, Value={valueText}, SupportedTypes={DescribeSupportedTypes(info.SupportedTypes)}]";
+                })
+                .ToList();
         }
 
         public static List<UnifiedHmiTagTableResolution> GetAllUnifiedHmiTagTables(HmiSoftware hmiSoftware)
@@ -2107,6 +2222,77 @@ namespace TiaLocalBridge.Commands
 
                 AddPlcSystemBlocksRecursive(childGroup, childPath, result);
             }
+        }
+
+        private static void AddClassicHmiTagTablesRecursive(object folder, string parentPath, List<ClassicHmiObjectResolution> result)
+        {
+            foreach (var table in GetPropertyItems(folder, "TagTables"))
+            {
+                var tableName = GetClassicHmiObjectName(table);
+                result.Add(new ClassicHmiObjectResolution
+                {
+                    Item = table,
+                    ParentReference = string.IsNullOrWhiteSpace(parentPath) ? "<root>" : parentPath,
+                    ObjectReference = string.IsNullOrWhiteSpace(parentPath) ? tableName : $"{parentPath}/{tableName}"
+                });
+            }
+
+            foreach (var childFolder in GetPropertyItems(folder, "Folders"))
+            {
+                var folderPath = string.IsNullOrWhiteSpace(parentPath)
+                    ? GetClassicHmiObjectName(childFolder)
+                    : $"{parentPath}/{GetClassicHmiObjectName(childFolder)}";
+                AddClassicHmiTagTablesRecursive(childFolder, folderPath, result);
+            }
+        }
+
+        private static void AddClassicHmiScreenGroupsRecursive(object folder, string parentPath, List<ClassicHmiObjectResolution> result)
+        {
+            foreach (var childFolder in GetPropertyItems(folder, "Folders"))
+            {
+                var folderName = GetClassicHmiObjectName(childFolder);
+                var folderPath = string.IsNullOrWhiteSpace(parentPath) ? folderName : $"{parentPath}/{folderName}";
+                result.Add(new ClassicHmiObjectResolution
+                {
+                    Item = childFolder,
+                    ParentReference = string.IsNullOrWhiteSpace(parentPath) ? "<root>" : parentPath,
+                    ObjectReference = folderPath
+                });
+                AddClassicHmiScreenGroupsRecursive(childFolder, folderPath, result);
+            }
+        }
+
+        private static void AddClassicHmiScreensRecursive(object folder, string parentPath, List<ClassicHmiObjectResolution> result)
+        {
+            foreach (var screen in GetPropertyItems(folder, "Screens"))
+            {
+                var screenName = GetClassicHmiObjectName(screen);
+                result.Add(new ClassicHmiObjectResolution
+                {
+                    Item = screen,
+                    ParentReference = string.IsNullOrWhiteSpace(parentPath) ? "<root>" : parentPath,
+                    ObjectReference = string.IsNullOrWhiteSpace(parentPath) ? screenName : $"{parentPath}/{screenName}"
+                });
+            }
+
+            foreach (var childFolder in GetPropertyItems(folder, "Folders"))
+            {
+                var folderPath = string.IsNullOrWhiteSpace(parentPath)
+                    ? GetClassicHmiObjectName(childFolder)
+                    : $"{parentPath}/{GetClassicHmiObjectName(childFolder)}";
+                AddClassicHmiScreensRecursive(childFolder, folderPath, result);
+            }
+        }
+
+        private static IEnumerable<object> GetPropertyItems(object instance, string propertyName)
+        {
+            var value = instance?.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance)?.GetValue(instance, null);
+            return value is IEnumerable enumerable ? enumerable.Cast<object>().Where(item => item != null).ToList() : Enumerable.Empty<object>();
+        }
+
+        private static string GetClassicHmiObjectName(object instance)
+        {
+            return instance?.GetType().GetProperty("Name", BindingFlags.Public | BindingFlags.Instance)?.GetValue(instance, null)?.ToString() ?? "<unnamed>";
         }
 
         private static void AddUnifiedHmiTagTablesRecursive(HmiTagTableGroupComposition groups, string parentPath, List<UnifiedHmiTagTableResolution> result)
