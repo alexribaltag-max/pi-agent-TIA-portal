@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Siemens.Engineering;
 using Siemens.Engineering.HW;
+using TiaLocalBridge.Services;
 
 namespace TiaLocalBridge.Commands
 {
@@ -28,22 +29,9 @@ namespace TiaLocalBridge.Commands
             var hasExplicitDeviceItemName = providedArgs.Length >= 4;
             var deviceItemName = hasExplicitDeviceItemName ? providedArgs[3] : deviceName;
 
-            var openProjects = portal.Projects.ToList();
-            if (!openProjects.Any())
-            {
-                throw new InvalidOperationException("No open projects. Open or create a project first.");
-            }
-
-            var project = openProjects.FirstOrDefault(p => string.Equals(p.Name, projectName, StringComparison.OrdinalIgnoreCase));
-            if (project == null)
-            {
-                throw new InvalidOperationException($"Project '{projectName}' is not open. Open projects: {string.Join(", ", openProjects.Select(p => p.Name))}");
-            }
-
-            if (project.Devices.Any(d => string.Equals(d.Name, deviceName, StringComparison.OrdinalIgnoreCase)))
-            {
-                throw new InvalidOperationException($"A device named '{deviceName}' already exists in project '{project.Name}'. Use GETDEVICES to inspect current devices.");
-            }
+            var project = OpennessDeviceInventory.SelectProject(portal, projectName);
+            DeviceReferenceResolver.EnsureNameAvailable(OpennessDeviceInventory.Get(project), deviceName);
+            // Creation destination and fallback remain unchanged: full discovery is preflight only.
 
             Device device = null;
             Exception createWithItemException = null;

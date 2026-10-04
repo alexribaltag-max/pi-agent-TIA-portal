@@ -1,0 +1,12 @@
+{
+  "name": "tia-repository-offline-tests",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Dependency-free Phase 0 contracts and baseline checks; never connects to TIA",
+  "engines": { "node": "22.23.3" },
+  "scripts": {
+    "test": "node --test offline/*.test.mjs",
+    "baseline": "node scripts/fixture-baseline.mjs",
+    "probe:v21": "node scripts/probe-v21-api.mjs"
+  }
+}

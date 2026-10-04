@@ -1,0 +1,26 @@
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <AssemblyName>Inventory.Smoke</AssemblyName>
+    <OutputPath>bin\</OutputPath>
+    <IntermediateOutputPath>obj\</IntermediateOutputPath>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Compile Include="Program.cs" />
+    <Compile Include="..\..\TiaLocalBridge\Services\InventoryJson.cs" />
+    <Compile Include="..\..\TiaLocalBridge\Services\DeviceReference.cs" />
+    <Compile Include="..\..\TiaLocalBridge\Services\DeviceInventoryService.cs" />
+    <Compile Include="..\..\TiaLocalBridge\Services\DeviceReferenceResolver.cs" />
+    <Compile Include="..\..\TiaLocalBridge\Services\DeviceInventoryQuery.cs" />
+    <Compile Include="..\..\TiaLocalBridge\Services\ResourceTextReader.cs" />
+    <Compile Include="..\..\TiaLocalBridge\Services\BlockSnapshot.cs" />
+    <Compile Include="..\..\TiaLocalBridge\Services\BlockSnapshotPager.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

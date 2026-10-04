@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Contract vectors, not live Openness identity evidence",
+  "valid": [
+    {
+      "parts": ["PackagingMachine", "root", [], "S7-1500/ET200MP station_1"],
+      "legacy": "PackagingMachine/S7-1500/ET200MP station_1"
+    },
+    { "parts": ["Próyecto", "ungrouped", [], "Estación ñ/IO"] },
+    { "parts": ["项目", "userGroup", ["Línea/1", "Nested|%=:#?\\\"", "🔧"], "Device\twith\ncontrols"] },
+    { "parts": ["Project", "userGroup", ["A", "B"], "PLC"] },
+    { "parts": ["Project", "userGroup", ["A/B"], "PLC"] },
+    { "parts": ["Project", "root", [], "é"] },
+    { "parts": ["Project", "root", [], "é"] }
+  ],
+  "invalidParts": [
+    [],
+    ["", "root", [], "PLC"],
+    ["Project", "deviceItem", [], "PLC"],
+    ["Project", "root", ["Group"], "PLC"],
+    ["Project", "ungrouped", ["Group"], "PLC"],
+    ["Project", "userGroup", [], "PLC"],
+    ["Project", "userGroup", [""], "PLC"],
+    ["Project", "root", [], ""],
+    ["Project", "root", [], "PLC", "extra"]
+  ]
+}

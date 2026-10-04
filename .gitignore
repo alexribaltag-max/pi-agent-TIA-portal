@@ -5,6 +5,11 @@
 
 # Generated exports and local analysis artifacts
 exports-analysis/
+exports-*/
+imports-*/
+TiaLocalBridge/exports-*/
+TiaLocalBridge/imports-*/
+LiveTests/
 
 # Editor temp files
 *.swp
@@ -12,3 +17,8 @@ exports-analysis/
 
 # Local logs and scratch files
 log.txt
+data.txt
+
+# Implementation docs
+docs/
+V21_REGRESSION_CHECKLIST.md

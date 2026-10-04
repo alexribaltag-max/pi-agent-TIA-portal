@@ -6,6 +6,7 @@ using System.Reflection;
 using Microsoft.Win32;
 using Siemens.Engineering;
 using TiaLocalBridge.Commands;
+using TiaLocalBridge.Services;
 
 namespace TiaLocalBridge
 {
@@ -29,6 +30,8 @@ namespace TiaLocalBridge
                 { "LIST", new ListProjectsCommand() },
                 { "SEARCHHWCATALOG", new SearchHardwareCatalogCommand() },
                 { "GETDEVICES", new GetDevicesCommand() },
+                { "GETPROJECTOVERVIEW", new GetProjectOverviewCommand() },
+                { "GETDEVICEINVENTORY", new GetDeviceInventoryCommand() },
                 { "GETDEVICESJSON", new GetDevicesJsonCommand() },
                 { "GETDEVICEITEMS", new GetDeviceItemsCommand() },
                 { "GETPLUGLOCATIONS", new GetPlugLocationsCommand() },
@@ -68,6 +71,9 @@ namespace TiaLocalBridge
                 { "EXPORTPLCBLOCKDOCS", new ExportPlcBlockDocumentsCommand() },
                 { "EXPORTPLCBLOCKSMART", new ExportPlcBlockSmartCommand() },
                 { "EXPORTPLCBLOCKSMARTJSON", new ExportPlcBlockSmartJsonCommand() },
+                { "GETPLCBLOCK", new GetPlcBlockCommand() },
+                { "GETPLCBLOCKPAGE", new GetPlcBlockPageCommand() },
+                { "IMPORTPLCBLOCKGUARDED", new ImportPlcBlockGuardedCommand() },
                 { "IMPORTPLCBLOCKSMART", new ImportPlcBlockSmartCommand() },
                 { "IMPORTPLCBLOCKSMARTJSON", new ImportPlcBlockSmartJsonCommand() },
                 { "GETHMITAGS", new GetHmiTagsCommand() },
@@ -188,8 +194,11 @@ namespace TiaLocalBridge
                             portal = ConnectToPortal();
                         }
 
-                        string result = command.Execute(commandArgs, portal);
-                        WriteSuccessResponse(command.Name, result, command.ProducesJson, portal != null);
+                        using (OpennessDeviceInventory.BeginRequest())
+                        {
+                            string result = command.Execute(commandArgs, portal);
+                            WriteSuccessResponse(command.Name, result, command.ProducesJson, portal != null);
+                        }
                     }
                     catch (Exception ex)
                     {

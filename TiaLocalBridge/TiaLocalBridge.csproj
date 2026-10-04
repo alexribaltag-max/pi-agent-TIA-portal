@@ -62,6 +62,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -88,8 +89,25 @@
     <Compile Include="Commands\ExportPlcBlockDocumentsCommand.cs" />
     <Compile Include="Commands\ExportPlcBlockSmartCommand.cs" />
     <Compile Include="Commands\ExportPlcBlockSmartJsonCommand.cs" />
+    <Compile Include="Commands\GetPlcBlockCommand.cs" />
+    <Compile Include="Commands\GetPlcBlockPageCommand.cs" />
+    <Compile Include="Services\BlockSnapshotPager.cs" />
+    <Compile Include="Services\BlockExportService.cs" />
+    <Compile Include="Services\BlockExportEngine.cs" />
+    <Compile Include="Services\BlockSnapshot.cs" />
+    <Compile Include="Services\ResourceTextReader.cs" />
+    <Compile Include="Services\BlockReadOptions.cs" />
+    <Compile Include="Services\FlgNetReader.cs" />
+    <Compile Include="Services\StructuredTextReader.cs" />
     <Compile Include="Commands\GetDeviceItemsCommand.cs" />
     <Compile Include="Commands\GetDevicesCommand.cs" />
+    <Compile Include="Commands\GetDeviceInventoryCommand.cs" />
+    <Compile Include="Services\InventoryJson.cs" />
+    <Compile Include="Services\DeviceReference.cs" />
+    <Compile Include="Services\DeviceInventoryService.cs" />
+    <Compile Include="Services\DeviceReferenceResolver.cs" />
+    <Compile Include="Services\DeviceInventoryQuery.cs" />
+    <Compile Include="Services\OpennessDeviceInventory.cs" />
     <Compile Include="Commands\GetDevicesJsonCommand.cs" />
     <Compile Include="Commands\GetDriveObjectsCommand.cs" />
     <Compile Include="Commands\GetDriveTelegramsCommand.cs" />
@@ -124,6 +142,7 @@
     <Compile Include="Commands\GetPlcBlockGroupsCommand.cs" />
     <Compile Include="Commands\GetPlcBlockInfoCommand.cs" />
     <Compile Include="Commands\GetPlcBlockInfoJsonCommand.cs" />
+    <Compile Include="Commands\GetProjectOverviewCommand.cs" />
     <Compile Include="Commands\GetPlcBlocksCommand.cs" />
     <Compile Include="Commands\GetPlcBlocksJsonCommand.cs" />
     <Compile Include="Commands\GetPlcBlockCrossReferencesCommand.cs" />
@@ -133,6 +152,7 @@
     <Compile Include="Commands\HelpCommand.cs" />
     <Compile Include="Commands\ImportPlcBlockSmartCommand.cs" />
     <Compile Include="Commands\ImportPlcBlockSmartJsonCommand.cs" />
+    <Compile Include="Commands\ImportPlcBlockGuardedCommand.cs" />
     <Compile Include="Commands\ITiaCommand.cs" />
     <Compile Include="Commands\ListProjectCommand.cs" />
     <Compile Include="Commands\OpenProjectCommand.cs" />

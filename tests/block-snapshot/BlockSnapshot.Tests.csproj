@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable><TreatWarningsAsErrors>true</TreatWarningsAsErrors><EnableDefaultCompileItems>false</EnableDefaultCompileItems></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="BlockSnapshotTests.cs" />
+    <Compile Include="../../TiaLocalBridge/Services/BlockExportEngine.cs" Link="Production/BlockExportEngine.cs" />
+    <Compile Include="../../TiaLocalBridge/Services/BlockSnapshotPager.cs" Link="Production/BlockSnapshotPager.cs" />
+    <Compile Include="../../TiaLocalBridge/Services/BlockSnapshot.cs" Link="Production/BlockSnapshot.cs" />
+    <Compile Include="../../TiaLocalBridge/Services/ResourceTextReader.cs" Link="Production/ResourceTextReader.cs" />
+    <Compile Include="../../TiaLocalBridge/Services/BlockReadOptions.cs" Link="Production/BlockReadOptions.cs" />
+    <Compile Include="../../TiaLocalBridge/Services/InventoryJson.cs" Link="Production/InventoryJson.cs" />
+  </ItemGroup>
+</Project>

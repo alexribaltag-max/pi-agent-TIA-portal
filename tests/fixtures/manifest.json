@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "hashPolicy": "UTF-8 with CRLF normalized to LF; BOM retained. Not native artifact hashes.",
+  "provenance": "Existing tracked exports at 1cf9ed43f2d4449c6378fb55bb50320361796e8f. No new customer PLC code copied. Redistribution/license review remains required before publishing fixture content elsewhere.",
+  "missingCoverage": [
+    "V21 runtime exports",
+    "FBD",
+    "STL",
+    "GRAPH/CFC/safety",
+    "protected/inconsistent blocks",
+    "complex graphical branches and pins",
+    "multilingual resource edge cases",
+    "device group/ungrouped runtime identity"
+  ],
+  "fixtures": [
+    {
+      "id": "global-db",
+      "language": "DB",
+      "blockType": "GlobalDB",
+      "tiaVersion": "V20",
+      "versionEvidence": "XML Engineering/@version; associated documents inferred by sample pair, not independently versioned",
+      "xml": "TiaLocalBridge/exports-kinds/DB_Data.xml",
+      "documents": [
+        "TiaLocalBridge/exports-kinds/DB_Data_docs/DB_Data.s7dcl"
+      ],
+      "files": [
+        {
+          "path": "TiaLocalBridge/exports-kinds/DB_Data.xml",
+          "canonicalBytes": 1995,
+          "canonicalSha256": "c5893b4e64e491c2f4e33bd3bc45e0f3c768ffd99f8c81a9ff95e32faefeb184"
+        },
+        {
+          "path": "TiaLocalBridge/exports-kinds/DB_Data_docs/DB_Data.s7dcl",
+          "canonicalBytes": 333,
+          "canonicalSha256": "9a7ef991dcbbf059f18d7f78f0bf83da7eea55889f661dbfb0bcdaa284a23903"
+        }
+      ]
+    },
+    {
+      "id": "instance-db",
+      "language": "DB",
+      "blockType": "InstanceDB",
+      "tiaVersion": "V20",
+      "versionEvidence": "XML Engineering/@version; associated documents inferred by sample pair, not independently versioned",
+      "xml": "TiaLocalBridge/exports-kinds/InstanceDB_InstCallGeneral.xml",
+      "documents": [
+        "TiaLocalBridge/exports-kinds/InstanceDB_InstCallGeneral_docs/InstanceDB_InstCallGeneral.s7dcl"
+      ],
+      "files": [
+        {
+          "path": "TiaLocalBridge/exports-kinds/InstanceDB_InstCallGeneral.xml",
+          "canonicalBytes": 2528,
+          "canonicalSha256": "dd2af3a1d3bb60db3207b2e6b0dc7e4ae5a74194ba200e33d43b9127cffba8b7"
+        },
+        {
+          "path": "TiaLocalBridge/exports-kinds/InstanceDB_InstCallGeneral_docs/InstanceDB_InstCallGeneral.s7dcl",
+          "canonicalBytes": 194,
+          "canonicalSha256": "a1ec56c2ccd5f2ab20f3370849981d15cbe52cc80b04c0163a2f08bf143c5e4b"
+        }
+      ]
+    },
+    {
+      "id": "lad-ob",
+      "language": "LAD",
+      "blockType": "OB",
+      "tiaVersion": "V20",
+      "versionEvidence": "XML Engineering/@version; associated documents inferred by sample pair, not independently versioned",
+      "xml": "TiaLocalBridge/exports-kinds/LAD_Main.xml",
+      "documents": [
+        "TiaLocalBridge/exports-kinds/LAD_Main_docs/LAD_Main.s7dcl",
+        "TiaLocalBridge/exports-kinds/LAD_Main_docs/LAD_Main.s7res"
+      ],
+      "files": [
+        {
+          "path": "TiaLocalBridge/exports-kinds/LAD_Main.xml",
+          "canonicalBytes": 10524,
+          "canonicalSha256": "0642562aeae90342275b40413a593c64050069f2d5bcdb6a8f276eb6699e4679"
+        },
+        {
+          "path": "TiaLocalBridge/exports-kinds/LAD_Main_docs/LAD_Main.s7dcl",
+          "canonicalBytes": 1368,
+          "canonicalSha256": "fb53ea9de8aabd211d13341b5d7355ddbc637aeb0a52ab0d0ac5eca3cb72fbb0"
+        },
+        {
+          "path": "TiaLocalBridge/exports-kinds/LAD_Main_docs/LAD_Main.s7res",
+          "canonicalBytes": 606,
+          "canonicalSha256": "acd6de5378f551eddd49e0ac8e9719eeab858db50dac6d738d681e29cc97fd64"
+        }
+      ]
+    },
+    {
+      "id": "scl-fc",
+      "language": "SCL",
+      "blockType": "FC",
+      "tiaVersion": "V20",
+      "versionEvidence": "XML Engineering/@version; associated documents inferred by sample pair, not independently versioned",
+      "xml": "TiaLocalBridge/exports-kinds/SCL_ClearAlarms.xml",
+      "documents": [],
+      "files": [
+        {
+          "path": "TiaLocalBridge/exports-kinds/SCL_ClearAlarms.xml",
+          "canonicalBytes": 20785,
+          "canonicalSha256": "c3cc53760194419e90ceb8dc8c3bb0ade0e2be726d2bd72a5c918786e4a4c91d"
+        }
+      ]
+    }
+  ]
+}

@@ -53,7 +53,7 @@ The bridge references the modular V21 assemblies (`Siemens.Engineering.Base`, `S
 
 TIA Portal V21 restructured Openness and removed the previous monolithic `Siemens.Engineering.dll` reference layout. This repository now targets the V21 modular assemblies, resolves them using the V21 registry layout, uses a V21 Add-In publisher namespace, and emits V21 metadata from the built-in block templates. V21 is not backward compatible with earlier TIA Portal versions; use a V20-targeted build for V20.
 
-The bridge and add-in have been compile-checked against the V21 installation on this machine. V21 live regression results, including PLC, hardware/network, drives, and Unified HMI, are recorded in the repository-root `V21_REGRESSION_CHECKLIST.md`. Classic WinCC Comfort HMI support is a separate compatibility layer and still requires live testing against a Comfort panel project.
+The bridge and add-in have been compile-checked against the V21 installation on this machine. PLC, hardware/network, drive, and Unified HMI workflows have been regression-tested against V21 using disposable fixtures. Classic WinCC Comfort (`HmiTarget`) support is a separate compatibility layer: tag/screen discovery, screen engineering-attribute reads/writes, and tag deletion are implemented, but live Comfort-panel testing is still pending.
 
 The build defaults to `C:\Program Files\Siemens\Automation\Portal V21\PublicAPI\V21\net48`. Override `TiaPortalPublicApiPath` when TIA is installed elsewhere.
 
@@ -113,6 +113,7 @@ The bridge prints JSON lines to stdout.
 - `ADDDEVICE|<project-name>|<type-identifier>|<device-name>|[device-item-name]`
 - `ADDMODULE|<device-reference>|<parent-target-reference>|<type-identifier>|<module-name>|<position-number>`
 - `GETDEVICES|[project-name]`
+- `GETDEVICEINVENTORY|<project-name>|[scope=...]|[fields=...]|[limit=...]|[cursor=...]|[capabilities=true/false]`
 - `GETDEVICESJSON|<device-reference>`
 - `GETDEVICEITEMS|<device-reference>`
 - `GETPLUGLOCATIONS|<device-reference>|<target-reference>`
@@ -120,6 +121,17 @@ The bridge prints JSON lines to stdout.
 - `SETHWPROPERTY|<device-reference>|<target-reference>|<property-name>|<value>`
 - `GETHWADDRESSES|<device-reference>|<target-reference>`
 - `SETHWADDRESS|<device-reference>|<target-reference>|<io-type>|<start-address>`
+
+`GETDEVICES` and the shared device resolver now inspect root devices, ungrouped devices, and recursive user groups. Legacy project/name references remain supported when unique, including slash-containing device names. Canonical `tia-device:v1:...` references resolve exactly; ambiguity or incomplete enumeration fails closed for downstream resolution and creation preflight.
+
+`GETDEVICEINVENTORY` adds bounded JSON discovery (16 KiB result, default 100 rows), field projection, scope filters, explicit completeness warnings, and change-detecting continuation. `GETDEVICESJSON` remains a **single-device** command. Capabilities are opt-in; no device/software type is filtered out by default.
+
+```text
+GETDEVICEINVENTORY|PackagingMachine|scope=all|limit=100
+GETDEVICEINVENTORY|PackagingMachine|scope=ungrouped|fields=name,typeIdentifier
+```
+
+Phase 1 was verified **offline only**. Unverified distinct wrappers at the same location produce `IDENTITY_UNVERIFIED` rather than being merged by name. See [Phase 1 behavior, options, limitations, and test evidence](../docs/PHASE_1_DEVICE_INVENTORY.md). The existing first-instance TIA targeting behavior is unchanged.
 
 Example device and module workflow:
 
@@ -181,8 +193,14 @@ PLC tag table resolution tolerates accent-insensitive names, which is useful whe
 - `EXPORTPLCBLOCKDOCS|<device-reference>|<block-reference>|<target-directory>|[file-name-without-extension]`
 - `EXPORTPLCBLOCKSMART|<device-reference>|<block-reference>|<target-directory>`
 - `EXPORTPLCBLOCKSMARTJSON|<device-reference>|<block-reference>|<target-directory>`
+- `GETPLCBLOCK|<device-reference>|<block-reference>|[locale=<culture>]` (offline preview; see below)
+- `GETPLCBLOCKPAGE|<artifact-id>|<nextCursor>` (offline snapshot continuation; no TIA attach)
 - `IMPORTPLCBLOCKSMART|<device-reference>|<source-path>|[target-group-reference]`
 - `IMPORTPLCBLOCKSMARTJSON|<device-reference>|<source-path>|[target-group-reference]`
+
+### Phase 2 offline block reader preview
+
+`GETPLCBLOCK|<device-reference>|<block-reference>|[locale=<culture>]` resolves one block and creates a unique local snapshot under `%LOCALAPPDATA%/TiaLocalBridge/block-snapshots/<artifactId>/`. It returns bounded JSON (at most 16 KiB), with a native `.s7dcl` preview for successful document exports and a manifest recording native file hashes and analysis-only status. SCL XML exports with the reviewed StructuredText/v4 and Interface/v5 subset return a reconstructed, analysis-only interface/logic view with `view/source-map.json`; unknown constructs/schema return `fidelity=metadata-only`, `reason=FORMAT_UNSUPPORTED` and a native XML artifact. Other XML-only exports remain metadata-only, **not** empty complete logic views. The provisional locale is `en-US`; an explicit `locale=de-DE` is accepted. Reviewed simple single-line `.s7res` entries are annotated before the **unchanged native document**; other resource syntaxes, missing keys, and culture fallback are marked `partial`/`RESOURCES_UNRESOLVED`, preserving raw keys/files. This is not a general YAML parser. Large views return `hasMore=true` and `nextCursor`; pass that cursor to `GETPLCBLOCKPAGE|<artifactId>|<nextCursor>` to read verified 8 KiB/150-line snapshot pages without re-export or TIA attachment. Page cursors are signed per bridge process and expire on restart, manifest/file change or deletion. `incompleteUnit` flags a slice inside a section; reconstructed section/unit boundaries come from a hashed parser-issued index, not source-looking text, and native-document multi-page boundaries are conservatively incomplete. `completeForSelection` describes fidelity of the returned page, separately from `hasMore`. Never use `view/analysis.txt` for imports. This is an **offline Phase 2 preview with a Phase 3 SCL/paging subset**, not a validated release: approval of default locale and retention period (captures stop at 100 directories or 512 MiB rather than deleting), broader resource formats, extension rendering and live export validation remain pending. Local snapshots may contain sensitive PLC logic; clean them manually under an approved retention policy. No live V21 test was run for this command.
 
 ### HMI commands
 

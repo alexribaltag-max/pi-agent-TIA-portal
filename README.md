@@ -5,8 +5,8 @@
 
 **The ultimate bridge between AI and industrial automation.**
 
-> Compatibility update: this repository is now aligned with the current pi package ownership and APIs.
-> Verified with `@earendil-works/pi-coding-agent` **v0.74.0**.
+> Compatibility: aligned with the current pi package ownership and APIs.
+> Verified with `@earendil-works/pi-coding-agent` **v0.87.1**.
 
 This project transforms your TIA Portal engineering experience by extending the **Pi Coding Agent** into the world of Siemens automation. It allows an AI agent to "see," "interact," and "modify" your TIA Portal projects, PLC code, HMI screens, and hardware configurations in real time using the Siemens TIA Portal Openness API.
 
@@ -43,7 +43,7 @@ Check it out: https://github.com/earendil-works/pi-mono/tree/main/packages/codin
 - **🤖 AI-Driven PLC Programming**: Ask the agent to generate SCL blocks, refactor logic, or explain complex networks.
 - **🔌 Seamless UI Integration**: Right-click any block or tag table directly in TIA Portal to trigger AI reviews, explanations, or custom prompts via the **Pi Agent Add-in**.
 - **🛠️ Automated Hardware Management**: Programmatically discover, add, and configure PLC modules, ET200 stations, and drives.
-- **📊 HMI & Tag Synchronization**: Automatically manage HMI tags, connections, and screen items.
+- **📊 HMI & Tag Synchronization**: Full tag, connection, and screen-item workflows for WinCC Unified; classic WinCC Comfort panels currently support tag/screen discovery, screen attribute access, and tag deletion.
 - **⚡ Smart Import/Export**: Intelligent handling of block formats (XML vs. Document) based on language and protection status.
 - **🧪 Testing & Validation**: Create disposable test blocks, compile them, and verify logic without manual clicks.
 
@@ -196,14 +196,14 @@ A native TIA Portal add-in that provides a direct "hotline" from the engineering
 
 ### pi compatibility
 
-This repo is currently aligned with the modern pi package layout and ownership change:
+This repository is aligned with the current pi package layout and ownership:
 
 - package: `@earendil-works/pi-coding-agent`
-- verified version: `0.74.0`
+- verified pi version: `0.87.1`
 - extension schema package: `typebox`
 - legacy import paths such as `@mariozechner/pi-coding-agent` have been updated
 
-If you update pi again later, reload the extension with `/reload` after pulling the latest repo changes.
+If you update the repository while pi is running, reload the extension with `/reload`.
 
 ### Model support
 
@@ -211,8 +211,9 @@ TIA Agent has been tested with frontier models such as OpenAI 5.4 and Gemini 5.1
 
 ### Prerequisites
 
-- **TIA Portal V21** (the current bridge/add-in target; live project workflows still need validation after this migration)
+- **TIA Portal V21** (the bridge and add-in target; PLC, hardware/network, drive, and Unified HMI workflows have been regression-tested on V21)
 - **TIA Portal Openness V21** (provided with the TIA installation; the local V21 API assemblies are referenced from `PublicAPI\V21\net48`)
+- **WinCC Comfort panels**: classic `HmiTarget` support for tag/screen discovery, screen engineering-attribute inspection/writes, and HMI tag deletion. Comfort screen-item operations, tag creation/update, and connection editing are not yet supported; live Comfort-panel testing is pending.
 - **.NET Framework 4.8** runtime and **.NET Framework 4.8 Developer Pack** (needed to build the bridge and add-in)
 - **.NET SDK 8** or Visual Studio/MSBuild to build the projects
 - **pi coding agent** installed (`@earendil-works/pi-coding-agent`)

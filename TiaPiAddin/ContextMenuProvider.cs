@@ -66,6 +66,7 @@ namespace TiaPiAddin
 
         private async Task SendActionToPiAsync(string action, IEnumerable<IEngineeringObject> selection)
         {
+            var items = new List<string>();
             foreach (var item in selection)
             {
                 string name = string.Empty;
@@ -74,26 +75,33 @@ namespace TiaPiAddin
 
                 var deviceName = GetDeviceName(item);
 
-                string jsonPayload = $@"{{
-                    ""action"": ""{EscapeJson(action)}"",
+                items.Add($@"{{
                     ""device"": ""{EscapeJson(deviceName)}"",
                     ""target"": ""{EscapeJson(name)}"",
                     ""type"": ""{EscapeJson(item.GetType().Name)}""
-                }}";
+                }}");
+            }
 
-                try
-                {
-                    var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-                    await _httpClient.PostAsync(PI_SERVER_URL, content);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(
-                        "Failed to trigger Pi Agent: " + ex.Message,
-                        "Pi Agent Integration",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
-                }
+            if (items.Count == 0) return;
+
+            string jsonPayload = $@"{{
+                ""action"": ""{EscapeJson(action)}"",
+                ""selection"": [{string.Join(",", items)}]
+            }}";
+
+            try
+            {
+                var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync(PI_SERVER_URL, content);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Failed to trigger Pi Agent: " + ex.Message,
+                    "Pi Agent Integration",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
         }
 
@@ -102,10 +110,9 @@ namespace TiaPiAddin
             var current = item.Parent;
             while (current != null)
             {
-                if (current.GetType().Name.Contains("Device"))
+                if (current is Siemens.Engineering.HW.Device device)
                 {
-                    dynamic d = current;
-                    try { return d.Name; } catch { }
+                    return device.Name;
                 }
                 current = current.Parent;
             }

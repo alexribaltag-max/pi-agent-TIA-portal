@@ -1,0 +1,42 @@
+name: Offline baseline and contracts
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.3'
+      # No npm install: this suite has no dependencies and never loads Siemens assemblies.
+      - run: npm --prefix tests test
+      - run: npm --prefix tests run baseline
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.425'
+      # Compiles linked production pure services only; no Siemens references or NuGet packages.
+      - run: dotnet run --project dotnet/Inventory.Tests.csproj
+        working-directory: tests
+      - run: dotnet run --project block-snapshot/BlockSnapshot.Tests.csproj
+        working-directory: tests
+      - run: dotnet run --project structured-text/StructuredText.Tests.csproj
+        working-directory: tests
+      - run: node tests/scripts/check-reference-interop.mjs
+      - name: Build net48 pure smoke tests
+        if: runner.os == 'Windows'
+        run: dotnet msbuild net48/Inventory.Smoke.csproj -t:Build -verbosity:minimal
+        working-directory: tests
+      - name: Run net48 pure smoke tests
+        if: runner.os == 'Windows'
+        run: ./tests/net48/bin/Inventory.Smoke.exe

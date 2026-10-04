@@ -29,6 +29,7 @@ using Siemens.Engineering.HmiUnified.UI.Widgets;
 using Siemens.Engineering.SW;
 using Siemens.Engineering.SW.Blocks;
 using Siemens.Engineering.SW.Tags;
+using TiaLocalBridge.Services;
 
 namespace TiaLocalBridge.Commands
 {
@@ -151,48 +152,13 @@ namespace TiaLocalBridge.Commands
 
         public static DeviceResolution ResolveDeviceByReference(TiaPortal portal, string deviceReference)
         {
-            var openProjects = portal.Projects.ToList();
-            if (!openProjects.Any())
-            {
-                throw new InvalidOperationException("No open projects. Open or create a project first.");
-            }
-
-            var normalizedReference = NormalizeDeviceReference(deviceReference);
-
-            if (TryResolveProjectQualifiedDevice(openProjects, normalizedReference, out DeviceResolution qualifiedResolution))
-            {
-                return qualifiedResolution;
-            }
-
-            var matches = openProjects
-                .SelectMany(project => project.Devices.Select(device => new DeviceResolution
-                {
-                    Project = project,
-                    Device = device
-                }))
-                .Where(match => string.Equals(match.Device.Name, normalizedReference, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            if (!matches.Any())
-            {
-                var availableDevices = GetAvailableDeviceReferences(openProjects);
-                throw new InvalidOperationException(
-                    availableDevices.Any()
-                        ? $"Device reference '{normalizedReference}' was not found. Use one of these references from GETDEVICES: {string.Join(", ", availableDevices)}"
-                        : "There are open projects, but no devices were found.");
-            }
-
-            if (matches.Count > 1)
-            {
-                throw new InvalidOperationException($"Multiple devices named '{normalizedReference}' were found in open projects: {string.Join(", ", matches.Select(m => m.Project.Name))}. Use the project-qualified reference returned by GETDEVICES: <project-name>/<device-name>.");
-            }
-
-            return matches[0];
+            var match = DeviceReferenceResolver.Resolve(portal.Projects.Select(OpennessDeviceInventory.Get), deviceReference);
+            return new DeviceResolution { Project = (Project)match.Inventory.Project, Device = (Device)match.Device.Handle };
         }
 
         public static string GetDeviceReference(Project project, Device device)
         {
-            return $"{project.Name}/{device.Name}";
+            return OpennessDeviceInventory.GetReference(project, device);
         }
 
         public static List<DeviceItem> GetAllDeviceItems(Device device)
@@ -2011,64 +1977,6 @@ namespace TiaLocalBridge.Commands
                 result.Add($"State={message.State}, Path={path}, Errors={message.ErrorCount}, Warnings={message.WarningCount}, Description={description}");
                 AddCompilerMessageSummaries(message.Messages, result);
             }
-        }
-
-        private static string NormalizeDeviceReference(string deviceReference)
-        {
-            if (string.IsNullOrWhiteSpace(deviceReference))
-            {
-                throw new ArgumentException("Device reference cannot be empty. Use either '<device-name>' or '<project-name>/<device-name>'.");
-            }
-
-            return deviceReference.Trim();
-        }
-
-        private static bool TryResolveProjectQualifiedDevice(IEnumerable<Project> openProjects, string deviceReference, out DeviceResolution resolution)
-        {
-            resolution = null;
-
-            var separatorIndex = deviceReference.IndexOf('/');
-            if (separatorIndex <= 0)
-            {
-                return false;
-            }
-
-            var projectName = deviceReference.Substring(0, separatorIndex).Trim();
-            var deviceName = deviceReference.Substring(separatorIndex + 1).Trim();
-            if (string.IsNullOrWhiteSpace(projectName) || string.IsNullOrWhiteSpace(deviceName))
-            {
-                throw new ArgumentException("Invalid device reference. Use either '<device-name>' or '<project-name>/<device-name>'.");
-            }
-
-            var project = openProjects.FirstOrDefault(p => string.Equals(p.Name, projectName, StringComparison.OrdinalIgnoreCase));
-            if (project == null)
-            {
-                return false;
-            }
-
-            var device = project.Devices.FirstOrDefault(d => string.Equals(d.Name, deviceName, StringComparison.OrdinalIgnoreCase));
-            if (device == null)
-            {
-                var availableDevicesInProject = project.Devices.Select(d => $"{project.Name}/{d.Name}").ToList();
-                throw new InvalidOperationException(
-                    availableDevicesInProject.Any()
-                        ? $"Device '{deviceName}' was not found in project '{project.Name}'. Available devices: {string.Join(", ", availableDevicesInProject)}"
-                        : $"Project '{project.Name}' is open, but no devices were found.");
-            }
-
-            resolution = new DeviceResolution
-            {
-                Project = project,
-                Device = device
-            };
-            return true;
-        }
-
-        private static List<string> GetAvailableDeviceReferences(IEnumerable<Project> projects)
-        {
-            return projects
-                .SelectMany(project => project.Devices.Select(device => GetDeviceReference(project, device)))
-                .ToList();
         }
 
         private static string NormalizePlcTagTableReference(string tableReference)

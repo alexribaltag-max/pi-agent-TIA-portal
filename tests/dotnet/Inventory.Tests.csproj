@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="../../TiaLocalBridge/Services/InventoryJson.cs" Link="Production/InventoryJson.cs" />
+    <Compile Include="../../TiaLocalBridge/Services/DeviceReference.cs" Link="Production/DeviceReference.cs" />
+    <Compile Include="../../TiaLocalBridge/Services/DeviceInventoryService.cs" Link="Production/DeviceInventoryService.cs" />
+    <Compile Include="../../TiaLocalBridge/Services/DeviceReferenceResolver.cs" Link="Production/DeviceReferenceResolver.cs" />
+    <Compile Include="../../TiaLocalBridge/Services/DeviceInventoryQuery.cs" Link="Production/DeviceInventoryQuery.cs" />
+    <None Include="../contracts/device-references.json" Link="device-references.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

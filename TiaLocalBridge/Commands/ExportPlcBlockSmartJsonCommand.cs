@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Siemens.Engineering;
 using Siemens.Engineering.SW.Blocks;
+using TiaLocalBridge.Services;
 
 namespace TiaLocalBridge.Commands
 {
@@ -38,51 +39,14 @@ namespace TiaLocalBridge.Commands
             }
 
             var baseName = CommandSupport.SanitizeFileName(block.Name);
-            var preferredMode = GetPreferredExportMode(block);
-            var actualMode = preferredMode;
-            var usedFallback = false;
-            string fallbackReason = null;
-            string exportState = null;
-            var exportedFiles = new List<string>();
-            var messages = new List<string>();
-
-            if (preferredMode == SmartExportMode.Xml)
-            {
-                var xmlFile = new FileInfo(Path.Combine(targetDirectory.FullName, baseName + ".xml"));
-                block.Export(xmlFile, ExportOptions.None, DocumentInfoOptions.None);
-                exportedFiles.Add(xmlFile.FullName);
-                exportState = "XmlExported";
-            }
-            else
-            {
-                var docsDirectory = new DirectoryInfo(Path.Combine(targetDirectory.FullName, baseName + "_docs"));
-                if (!docsDirectory.Exists)
-                {
-                    docsDirectory.Create();
-                }
-
-                try
-                {
-                    var exportResult = block.ExportAsDocuments(docsDirectory, baseName);
-                    exportState = exportResult.State.ToString();
-                    exportedFiles.AddRange(exportResult.ExportedDocuments.Select(file => file.FullName));
-                    messages.AddRange(
-                        exportResult.Messages
-                            .Select(message => message.Message)
-                            .Where(message => !string.IsNullOrWhiteSpace(message)));
-                }
-                catch (Exception ex)
-                {
-                    actualMode = SmartExportMode.Xml;
-                    usedFallback = true;
-                    fallbackReason = ex.Message;
-
-                    var xmlFile = new FileInfo(Path.Combine(targetDirectory.FullName, baseName + ".xml"));
-                    block.Export(xmlFile, ExportOptions.None, DocumentInfoOptions.None);
-                    exportedFiles.Add(xmlFile.FullName);
-                    exportState = "XmlExportedAfterFallback";
-                }
-            }
+            var export = BlockExportService.Export(block, targetDirectory, baseName);
+            var preferredMode = export.PreferredMode == "Xml" ? SmartExportMode.Xml : SmartExportMode.Documents;
+            var actualMode = export.ActualMode == "Xml" ? SmartExportMode.Xml : SmartExportMode.Documents;
+            var usedFallback = export.UsedFallback;
+            var fallbackReason = export.FallbackReason;
+            var exportState = export.State;
+            var exportedFiles = export.Files;
+            var messages = export.Messages;
 
             return BuildJson(
                 resolution.Project.Name,
@@ -196,21 +160,6 @@ namespace TiaLocalBridge.Commands
 
             json.Append("}}");
             return json.ToString();
-        }
-
-        private static SmartExportMode GetPreferredExportMode(PlcBlock block)
-        {
-            if (block.ProgrammingLanguage == ProgrammingLanguage.SCL)
-            {
-                return SmartExportMode.Xml;
-            }
-
-            if (block is DataBlock || block is InstanceDB)
-            {
-                return SmartExportMode.Documents;
-            }
-
-            return SmartExportMode.Documents;
         }
 
         private enum SmartExportMode

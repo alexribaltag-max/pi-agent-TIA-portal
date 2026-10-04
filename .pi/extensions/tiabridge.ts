@@ -27,6 +27,7 @@ export default function (pi: ExtensionAPI) {
   
   // Pending promises waiting for the next response from the bridge
   const pendingRequests: Array<{
+    command?: string;
     resolve: (value: any) => void;
     reject: (reason: any) => void;
   }> = [];
@@ -109,10 +110,9 @@ export default function (pi: ExtensionAPI) {
       });
 
       bridgeProcess.on("error", (err) => {
-        if (pendingRequests.length > 0) {
-          const req = pendingRequests.shift();
-          req?.reject(err);
-        }
+        const p = [...pendingRequests];
+        pendingRequests.length = 0;
+        for (const req of p) req.reject(err);
       });
 
       bridgeProcess.on("exit", () => {
@@ -120,10 +120,9 @@ export default function (pi: ExtensionAPI) {
         rl = null;
         portalStatus = "Disconnected";
         updateTuiStatus(ctx);
-        for (const req of pendingRequests) {
-          req.reject(new Error("Bridge process exited unexpectedly"));
-        }
+        const p = [...pendingRequests];
         pendingRequests.length = 0;
+        for (const req of p) req.reject(new Error("Bridge process exited unexpectedly"));
       });
 
       rl = readline.createInterface({
@@ -159,17 +158,21 @@ export default function (pi: ExtensionAPI) {
             }
           }
         } catch (e) {
-          // Unparseable line, maybe a crash trace
-          if (pendingRequests.length > 0) {
-             const req = pendingRequests.shift();
-             req?.reject(new Error("Unparseable output from bridge: " + line));
-          }
+          // We don't reject immediately on unparseable lines as it might just be noisy stderr/debug
+          eventBuffer.push({ type: "event", event: "UNPARSEABLE_OUTPUT", message: line });
         }
       });
       
       // Wait for the bridge to be ready (it prints INITIALIZING then READY)
-      // We'll give it a few seconds or consume the ready events
-      await new Promise(r => setTimeout(r, 1000));
+      // Actually await the READY event in the event buffer instead of blindly sleeping
+      const readyStart = Date.now();
+      while (Date.now() - readyStart < 15000) {
+        if (eventBuffer.some(e => e.event === "READY")) {
+          break;
+        }
+        if (!bridgeProcess || bridgeProcess.killed) throw new Error("Bridge exited before becoming ready.");
+        await new Promise(r => setTimeout(r, 100));
+      }
       
     } finally {
       isStarting = false;
@@ -244,27 +247,48 @@ export default function (pi: ExtensionAPI) {
     });
   }
 
-  async function sendCommandOnce(command: string, ctx: any): Promise<any> {
+  async function sendCommandOnce(command: string, ctx: any, signal?: AbortSignal): Promise<any> {
     await ensureProcess(ctx);
 
+    if (signal?.aborted) throw new Error("Aborted before sending command");
+
     return new Promise((resolve, reject) => {
-      pendingRequests.push({ resolve, reject });
+      let aborted = false;
+      const onAbort = () => {
+        aborted = true;
+        reject(new Error("Command execution aborted"));
+      };
+      if (signal) {
+        signal.addEventListener("abort", onAbort);
+      }
+
+      pendingRequests.push({ 
+        command,
+        resolve: (val) => {
+          if (signal) signal.removeEventListener("abort", onAbort);
+          if (!aborted) resolve(val);
+        }, 
+        reject: (err) => {
+          if (signal) signal.removeEventListener("abort", onAbort);
+          if (!aborted) reject(err);
+        } 
+      });
       bridgeProcess!.stdin!.write(command + "\n");
     });
   }
 
-  async function sendCommand(command: string, ctx: any): Promise<any> {
+  async function sendCommand(command: string, ctx: any, signal?: AbortSignal): Promise<any> {
     try {
-      const result = await sendCommandOnce(command, ctx);
+      const result = await sendCommandOnce(command, ctx, signal);
       if (isDisposedPortalError(result)) {
         await resetBridgeProcess(ctx, "TIA Portal instance was disposed. Reconnecting.");
-        return await sendCommandOnce(command, ctx);
+        return await sendCommandOnce(command, ctx, signal);
       }
       return result;
     } catch (error: any) {
       if (isDisposedPortalError(error)) {
         await resetBridgeProcess(ctx, "TIA Portal instance was disposed. Reconnecting.");
-        return await sendCommandOnce(command, ctx);
+        return await sendCommandOnce(command, ctx, signal);
       }
       throw error;
     }
@@ -302,11 +326,20 @@ export default function (pi: ExtensionAPI) {
             try {
               const payload = JSON.parse(body);
               
-              const targetStr = payload.block ? `block '${payload.block}'` : (payload.target ? `'${payload.target}'` : "the selected object");
-              const deviceStr = payload.device ? ` in device '${payload.device}'` : "";
               const actionStr = payload.action || "review";
+              const items = payload.selection || [];
+              let targetDesc = "the selected objects";
+
+              if (items.length === 1) {
+                  const it = items[0];
+                  const targetStr = it.block ? `block '${it.block}'` : (it.target ? `'${it.target}'` : "the selected object");
+                  const deviceStr = it.device && it.device !== "Unknown Device" ? ` in device '${it.device}'` : "";
+                  targetDesc = `${targetStr}${deviceStr}`;
+              } else if (items.length > 1) {
+                  targetDesc = `${items.length} selected objects`;
+              }
               
-              const prompt = `The user selected ${targetStr}${deviceStr} in TIA Portal for: ${actionStr}. Please use the tiabridge to fetch the relevant item, analyze it, and perform the requested action.`;
+              const prompt = `The user selected ${targetDesc} in TIA Portal for: ${actionStr}. Please use the tiabridge to fetch the relevant item(s), analyze it, and perform the requested action.`;
               
               pi.sendUserMessage(prompt, { deliverAs: "followUp" });
               
@@ -452,9 +485,25 @@ export default function (pi: ExtensionAPI) {
     }),
     async execute(toolCallId, params, signal, onUpdate, ctx) {
       try {
-        const result = await sendCommand(params.command, ctx);
+        const result = await sendCommand(params.command, ctx, signal);
         
-        let outputText = JSON.stringify(result, null, 2);
+        // If the bridge reported an error, we should throw so the agent sees a tool error rather than fake success
+        if (result?.status === "error") {
+            let msg = result.error || "Unknown bridge error";
+            if (result.events && result.events.length > 0) {
+               msg += " (Events: " + result.events.map((e: any) => e.message).join(", ") + ")";
+            }
+            throw new Error(msg);
+        }
+
+        let outputText = "";
+        if (result?.result !== undefined && result?.resultType === "json") {
+            outputText = JSON.stringify(result.result, null, 2);
+        } else if (result?.result !== undefined) {
+            outputText = result.result.toString();
+        } else {
+            outputText = JSON.stringify(result, null, 2);
+        }
         
         const truncation = truncateHead(outputText, {
           maxLines: DEFAULT_MAX_LINES,
